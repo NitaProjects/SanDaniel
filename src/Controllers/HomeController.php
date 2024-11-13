@@ -6,7 +6,8 @@
     class HomeController{
 
         function index(){
-            echo 'index';
+            $data=['name'=>'CEFPNuria'];
+            echo view('home',$data);
         }
         function teachers(){
             echo 'teachers';
