@@ -3,11 +3,7 @@
     define('VIEWS',__DIR__.'/src/views');
     require __DIR__.'/vendor/autoload.php';
 
-<<<<<<< HEAD
    
-=======
-    //carga automatica de rutas y entorno
->>>>>>> origin/main
 
     //require __DIR__.'/bootstrap.php';
 
@@ -23,19 +19,3 @@
 
 
    
-<<<<<<< HEAD
-=======
-/*
-    $student=new Student("test@test.com","Alberto");
-    $teacher=new Teacher("profe@test.com","Jordi");
-    $teacher->addToDepartment(new Department("Informatica"));
-    
-    
-    $daw_2=new Course("2DAW");
-    $daw_2->addSubject(new Subject("M7"))
-            ->addSubject(new Subject("M8"))
-            ->addSubject(new Subject("M6"));
-
-            
-*/  
->>>>>>> origin/main
