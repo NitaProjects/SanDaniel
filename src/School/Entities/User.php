@@ -1,41 +1,97 @@
 <?php
 
-    /**
-     * Clase abstracta User, representa a un usuario con propiedades 
-     * básicas como email, nombre, contraseña y marcas de tiempo.
-     */
+namespace App\School\Entities;
 
-    namespace App\School\Entities;
+class User
+{
+    private int $id;
+    private string $firstName;
+    private string $lastName;
+    private string $email;
+    private string $password;
+    private string $userType;
 
-    abstract class User {
-        const MYSCHOOL = "CEFPNutria"; // Constante con el nombre de la escuela.
-        
-        protected string $email = "test@test.com"; // Email del usuario, con un valor por defecto.
-        protected string $name; // Nombre del usuario.
-        protected string $password; // Contraseña del usuario.
-        protected ?\DateTime $createdAt = null; // Fecha de creación.
-        protected ?\DateTime $updatedAt = null; // Fecha de última actualización.
-
-        /*
-         * Constructor: Inicializa el email y el nombre del usuario.
-         */
-        function __construct($email, $name) {
-            $this->email = $email; // Asigna el email.
-            $this->name = $name; // Asigna el nombre.
-        }
-
-        /*
-         * setEmail: Establece el email del usuario.
-         */
-        function setEmail(string $email) {
-            $this->email = $email; // Asigna el email.
-            return $this; // Permite encadenar métodos.
-        }
-
-        /*
-         * getEmail: Retorna el email del usuario.
-         */
-        function getEmail() {
-            return $this->email;
-        }
+    public function __construct(
+        string $firstName,
+        string $lastName,
+        string $email,
+        string $password,
+        string $userType
+    ) {
+        $this->firstName = $firstName;
+        $this->lastName = $lastName;
+        $this->setEmail($email);
+        $this->password = $password;
+        $this->userType = $userType;
     }
+
+    // Getters and Setters
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    public function getFirstName(): string
+    {
+        return $this->firstName;
+    }
+
+    public function setFirstName(string $firstName): self
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
+
+    public function getLastName(): string
+    {
+        return $this->lastName;
+    }
+
+    public function setLastName(string $lastName): self
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): self
+    {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException("Invalid email format");
+        }
+        $this->email = $email;
+        return $this;
+    }
+
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function setPassword(string $password): self
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    public function getUserType(): string
+    {
+        return $this->userType;
+    }
+
+    public function setUserType(string $userType): self
+    {
+        $this->userType = $userType;
+        return $this;
+    }
+}

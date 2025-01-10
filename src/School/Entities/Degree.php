@@ -4,11 +4,11 @@ namespace App\School\Entities;
 
 use App\School\Entities\Course;
 
-class Subject
+class Degree
 {
-    protected int $id;
-    protected string $name;
-    protected ?Course $course = null;
+    private int $id;
+    private string $name;
+    private array $courses = [];
 
     public function __construct(string $name)
     {
@@ -26,14 +26,14 @@ class Subject
         return $this;
     }
 
-    public function setCourse(Course $course): self
+    public function addCourse(Course $course): self
     {
-        $this->course = $course;
+        $this->courses[] = $course;
         return $this;
     }
 
-    public function getCourse(): ?Course
+    public function getCourses(): array
     {
-        return $this->course;
+        return $this->courses;
     }
 }

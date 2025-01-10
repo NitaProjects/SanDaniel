@@ -1,19 +1,25 @@
-<?php 
+<?php
 
-    /**
-     * Clase Department, representa un departamento en la escuela.
-     * Contiene una propiedad para almacenar el nombre del departamento.
-     */
+namespace App\School\Entities;
 
-    namespace App\School\Entities;
+class Department
+{
+    protected int $id;
+    protected string $name;
 
-    class Department {
-        protected $name; // Nombre del departamento.
-
-        /*
-         * Constructor: Inicializa el nombre del departamento.
-         */
-        function __construct($name) {
-            $this->name = $name; // Asigna el nombre al departamento.
-        }
+    public function __construct(string $name)
+    {
+        $this->name = $name;
     }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+}

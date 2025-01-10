@@ -1,29 +1,51 @@
-<?php 
+<?php
 
-    /**
-     * Clase Course, representa un curso en la escuela.
-     * Contiene propiedades para almacenar el nombre del curso y una lista de materias.
-     */
+namespace App\School\Entities;
 
-    namespace App\School\Entities;
-    use App\School\Entities\Subject;
+use App\School\Entities\Subject;
 
-    class Course {
-        protected $name; // Nombre del curso.
-        protected $subjects = []; // Array para almacenar las materias asociadas al curso.
+class Course
+{
+    protected int $id;
+    protected string $name;
+    protected array $subjects = [];
+    protected ?Degree $degree = null;
 
-        /*
-         * Constructor: Inicializa el nombre del curso.
-         */
-        function __construct(string $name) {
-            $this->name = $name; // Asigna el nombre al curso.
-        }
-
-        /*
-         * addSubject: Agrega una materia (Subject) al curso.
-         */
-        function addSubject(Subject $subject) {
-            $this->subjects[] = $subject; // Añade la materia al array de materias.
-            return $this; // Permite encadenar métodos.
-        }
+    public function __construct(string $name)
+    {
+        $this->name = $name;
     }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function addSubject(Subject $subject): self
+    {
+        $this->subjects[] = $subject;
+        return $this;
+    }
+
+    public function getSubjects(): array
+    {
+        return $this->subjects;
+    }
+
+    public function setDegree(Degree $degree): self
+    {
+        $this->degree = $degree;
+        return $this;
+    }
+
+    public function getDegree(): ?Degree
+    {
+        return $this->degree;
+    }
+}

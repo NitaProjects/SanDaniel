@@ -5,12 +5,12 @@ namespace App\Database;
 use PDO;
 use PDOException;
 
-class Database
-{
+class Database {
+
     private $pdo;
 
-    public function __construct()
-    {
+    public function __construct(){
+        
         // Cargar la configuración de la base de datos desde config.php
         $config = require __DIR__ . '/../../config/config.php';
 
@@ -30,8 +30,7 @@ class Database
     }
 
     // Método para obtener la instancia de PDO
-    public function getConnection()
-    {
+    public function getConnection(){
         return $this->pdo;
     }
 }

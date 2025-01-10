@@ -12,7 +12,8 @@
 
     class Router {
         private array $routes = []; // Array para almacenar las rutas.
-
+        
+        
         /* 
          * addRoute: Agrega una nueva ruta al enrutador.
          * Recibe el método HTTP, la ruta y la acción a ejecutar.

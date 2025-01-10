@@ -13,7 +13,7 @@
          * Prepara los datos necesarios y llama a la vista 'home'.
          */
         function index() {
-            $data = ['name' => 'CEFPNutria']; // Datos a pasar a la vista.
+            $data = ['name' => 'Colegio San Daniel']; // Datos a pasar a la vista.
             echo view('home', $data); // Carga y muestra la vista 'home' con los datos.
         }
 
