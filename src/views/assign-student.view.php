@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asignar Alumno a Curso</title>
+    <link rel="stylesheet" href="../../styles/department.css">
 </head>
 
 <body>

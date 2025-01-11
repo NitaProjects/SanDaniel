@@ -19,17 +19,16 @@ class AssignTeacherController
     }
 
     public function assignTeacherPage()
-    {
-        $teachers = $this->teacherRepository->getAll();
-        $departments = $this->departmentRepository->getAll();
-        $teachersWithoutDepartment = array_filter($teachers, fn($teacher) => !$teacher->getDepartment());
-        $data = [
-            'teachers' => $teachers,
-            'departments' => $departments,
-            'teachersWithoutDepartment' => $teachersWithoutDepartment,
-        ];
-        echo view('assign-teacher', $data);
-    }
+{
+    $teachers = $this->teacherRepository->getAll();
+    $departments = $this->departmentRepository->getAll();
+    $data = [
+        'teachers' => $teachers,
+        'departments' => $departments,
+    ];
+    echo view('assign-teacher', $data);
+}
+
 
     public function assignTeacherAction()
     {

@@ -36,10 +36,13 @@
         <h3>Asignar Profesor</h3>
         <label for="teacher">Profesor:</label>
         <select name="teacher_id" required>
-            <?php foreach ($teachersWithoutDepartment as $teacher): ?>
-                <option value="<?= $teacher->getId(); ?>"><?= htmlspecialchars($teacher->getFirstName() . ' ' . $teacher->getLastName()); ?></option>
-            <?php endforeach; ?>
-        </select>
+    <?php foreach ($teachers as $teacher): ?>
+        <option value="<?= $teacher->getUserId(); ?>">
+            <?= htmlspecialchars($teacher->getFirstName() . ' ' . $teacher->getLastName()); ?>
+        </option>
+    <?php endforeach; ?>
+</select>
+
         <label for="department">Departamento:</label>
         <select name="department_id" required>
             <?php foreach ($departments as $department): ?>

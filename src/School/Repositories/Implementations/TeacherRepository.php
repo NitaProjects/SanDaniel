@@ -21,18 +21,18 @@ class TeacherRepository implements ITeacherRepository
     public function save(Teacher $teacher): void
     {
         if ($teacher->getId()) {
-            $stmt = $this->db->prepare("
-                UPDATE teachers SET 
-                    user_id = :user_id,
-                    department_id = :department_id
-                WHERE id = :id
-            ");
+            $stmt = $this->db->prepare(""
+                . "UPDATE teachers SET \n"
+                . "    user_id = :user_id,\n"
+                . "    department_id = :department_id\n"
+                . "WHERE id = :id"
+            );
             $stmt->bindValue(':id', $teacher->getId());
         } else {
-            $stmt = $this->db->prepare("
-                INSERT INTO teachers (user_id, department_id)
-                VALUES (:user_id, :department_id)
-            ");
+            $stmt = $this->db->prepare(""
+                . "INSERT INTO teachers (user_id, department_id)\n"
+                . "VALUES (:user_id, :department_id)"
+            );
         }
 
         $stmt->bindValue(':user_id', $teacher->getUserId());
@@ -69,36 +69,40 @@ class TeacherRepository implements ITeacherRepository
 
     public function getAll(): array
     {
-        $stmt = $this->db->query("SELECT * FROM teachers");
+        $stmt = $this->db->prepare(""
+            . "SELECT \n"
+            . "    users.id AS user_id, \n"
+            . "    users.first_name, \n"
+            . "    users.last_name, \n"
+            . "    users.email, \n"
+            . "    users.password, \n"
+            . "    users.user_type, \n"
+            . "    teachers.id AS teacher_id, \n"
+            . "    teachers.department_id \n"
+            . "FROM users\n"
+            . "LEFT JOIN teachers ON users.id = teachers.user_id\n"
+            . "WHERE users.user_type = 'teacher'"
+        );
+        $stmt->execute();
+
         $teachers = $stmt->fetchAll(PDO::FETCH_ASSOC);
         return array_map([$this, 'mapToTeacher'], $teachers);
     }
 
     private function mapToTeacher(array $data): Teacher
     {
-        // Consulta los datos del usuario
-        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :user_id");
-        $stmt->bindValue(':user_id', $data['user_id']);
-        $stmt->execute();
-
-        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$userData) {
-            throw new \Exception("User not found for user_id: " . $data['user_id']);
-        }
-
         $teacher = new Teacher(
-            $userData['first_name'],
-            $userData['last_name'],
-            $userData['email'],
-            $userData['password'],
-            $userData['user_type']
+            $data['first_name'],
+            $data['last_name'],
+            $data['email'],
+            $data['password'],
+            $data['user_type']
         );
 
-        $teacher->setId($data['id']);
+        $teacher->setId($data['teacher_id'] ?? null);
         $teacher->setUserId($data['user_id']);
 
-        // Asociar el departamento si existe
+        // Asocia el departamento si existe
         if (!empty($data['department_id'])) {
             $department = $this->departmentRepo->findById($data['department_id']);
             if ($department) {
