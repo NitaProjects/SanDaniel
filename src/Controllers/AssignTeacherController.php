@@ -1,5 +1,6 @@
 <?php
 
+// Controlador (AssignTeacherController.php)
 namespace App\Controllers;
 
 use App\Database\Database;
@@ -13,22 +14,21 @@ class AssignTeacherController
 
     public function __construct()
     {
-        $database = new Database(); // Crear conexión a la base de datos
+        $database = new Database();
         $this->departmentRepository = new DepartmentRepository($database->getConnection());
         $this->teacherRepository = new TeacherRepository($database->getConnection(), $this->departmentRepository);
     }
 
     public function assignTeacherPage()
-{
-    $teachers = $this->teacherRepository->getAll();
-    $departments = $this->departmentRepository->getAll();
-    $data = [
-        'teachers' => $teachers,
-        'departments' => $departments,
-    ];
-    echo view('assign-teacher', $data);
-}
-
+    {
+        $teachers = $this->teacherRepository->getAll();
+        $departments = $this->departmentRepository->getAll();
+        $data = [
+            'teachers' => $teachers,
+            'departments' => $departments,
+        ];
+        echo view('assign-teacher', $data);
+    }
 
     public function assignTeacherAction()
     {
@@ -39,7 +39,7 @@ class AssignTeacherController
             exit;
         }
 
-        $teacher = $this->teacherRepository->findById($teacherId);
+        $teacher = $this->teacherRepository->findByUserId($teacherId);
         $department = $this->departmentRepository->findById($departmentId);
 
         if ($teacher && $department) {

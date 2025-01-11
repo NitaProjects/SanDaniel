@@ -15,25 +15,15 @@ class TeacherRepository implements ITeacherRepository
     public function __construct(PDO $db, DepartmentRepository $departmentRepo)
     {
         $this->db = $db;
-        $this->departmentRepo = $departmentRepo; // Inicializa el repositorio de departamentos
+        $this->departmentRepo = $departmentRepo;
     }
 
     public function save(Teacher $teacher): void
     {
-        if ($teacher->getId()) {
-            $stmt = $this->db->prepare(""
-                . "UPDATE teachers SET \n"
-                . "    user_id = :user_id,\n"
-                . "    department_id = :department_id\n"
-                . "WHERE id = :id"
-            );
-            $stmt->bindValue(':id', $teacher->getId());
-        } else {
-            $stmt = $this->db->prepare(""
-                . "INSERT INTO teachers (user_id, department_id)\n"
-                . "VALUES (:user_id, :department_id)"
-            );
-        }
+        $stmt = $this->db->prepare(
+            "INSERT INTO teachers (user_id, department_id)
+            VALUES (:user_id, :department_id)"
+        );
 
         $stmt->bindValue(':user_id', $teacher->getUserId());
         $stmt->bindValue(':department_id', $teacher->getDepartment() ? $teacher->getDepartment()->getId() : null);
@@ -42,7 +32,20 @@ class TeacherRepository implements ITeacherRepository
 
     public function findById(int $id): ?Teacher
     {
-        $stmt = $this->db->prepare("SELECT * FROM teachers WHERE id = :id");
+        $stmt = $this->db->prepare(
+            "SELECT 
+                users.id AS user_id,
+                users.first_name,
+                users.last_name,
+                users.email,
+                users.password,
+                users.user_type,
+                teachers.id AS teacher_id,
+                teachers.department_id
+            FROM teachers
+            INNER JOIN users ON teachers.user_id = users.id
+            WHERE teachers.id = :id"
+        );
         $stmt->bindValue(':id', $id);
         $stmt->execute();
 
@@ -52,7 +55,20 @@ class TeacherRepository implements ITeacherRepository
 
     public function findByUserId(int $userId): ?Teacher
     {
-        $stmt = $this->db->prepare("SELECT * FROM teachers WHERE user_id = :user_id");
+        $stmt = $this->db->prepare(
+            "SELECT 
+                users.id AS user_id, 
+                users.first_name, 
+                users.last_name, 
+                users.email, 
+                users.password, 
+                users.user_type, 
+                teachers.id AS teacher_id, 
+                teachers.department_id 
+            FROM users
+            LEFT JOIN teachers ON users.id = teachers.user_id
+            WHERE users.id = :user_id"
+        );
         $stmt->bindValue(':user_id', $userId);
         $stmt->execute();
 
@@ -69,19 +85,19 @@ class TeacherRepository implements ITeacherRepository
 
     public function getAll(): array
     {
-        $stmt = $this->db->prepare(""
-            . "SELECT \n"
-            . "    users.id AS user_id, \n"
-            . "    users.first_name, \n"
-            . "    users.last_name, \n"
-            . "    users.email, \n"
-            . "    users.password, \n"
-            . "    users.user_type, \n"
-            . "    teachers.id AS teacher_id, \n"
-            . "    teachers.department_id \n"
-            . "FROM users\n"
-            . "LEFT JOIN teachers ON users.id = teachers.user_id\n"
-            . "WHERE users.user_type = 'teacher'"
+        $stmt = $this->db->prepare(
+            "SELECT 
+                users.id AS user_id, 
+                users.first_name, 
+                users.last_name, 
+                users.email, 
+                users.password, 
+                users.user_type, 
+                teachers.id AS teacher_id, 
+                teachers.department_id 
+            FROM users
+            LEFT JOIN teachers ON users.id = teachers.user_id
+            WHERE users.user_type = 'teacher'"
         );
         $stmt->execute();
 
@@ -92,17 +108,16 @@ class TeacherRepository implements ITeacherRepository
     private function mapToTeacher(array $data): Teacher
     {
         $teacher = new Teacher(
-            $data['first_name'],
-            $data['last_name'],
-            $data['email'],
-            $data['password'],
-            $data['user_type']
+            $data['first_name'] ?? '',
+            $data['last_name'] ?? '',
+            $data['email'] ?? '',
+            $data['password'] ?? '',
+            $data['user_type'] ?? ''
         );
 
         $teacher->setId($data['teacher_id'] ?? null);
-        $teacher->setUserId($data['user_id']);
+        $teacher->setUserId($data['user_id'] ?? null);
 
-        // Asocia el departamento si existe
         if (!empty($data['department_id'])) {
             $department = $this->departmentRepo->findById($data['department_id']);
             if ($department) {
