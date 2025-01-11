@@ -33,7 +33,6 @@ class DegreeRepository implements IDegreeRepository
         }
 
         $stmt->bindValue(':name', $degree->getName());
-        $stmt->bindValue(':duration_years', $degree->getDurationYears());
         $stmt->execute();
     }
 
@@ -65,7 +64,6 @@ class DegreeRepository implements IDegreeRepository
     {
         $degree = new Degree($data['name']);
         $degree->setId($data['id']);
-        $degree->setDurationYears($data['duration_years']);
         return $degree;
     }
 }

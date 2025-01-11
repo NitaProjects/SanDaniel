@@ -19,6 +19,17 @@ class Enrollment
         $this->enrollmentDate = $enrollmentDate;
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
     public function getStudent(): Student
     {
         return $this->student;

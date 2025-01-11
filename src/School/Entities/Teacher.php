@@ -9,7 +9,8 @@ class Teacher extends User
 {
     use Timestampable;
 
-    protected ?Department $department = null;
+    private ?int $userId = null; // Asegúrate de definir esta propiedad.
+    private ?Department $department = null;
 
     public function __construct(
         string $firstName,
@@ -20,6 +21,17 @@ class Teacher extends User
     ) {
         parent::__construct($firstName, $lastName, $email, $password, $userType);
         $this->updateTimestamps();
+    }
+
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
+
+    public function setUserId(int $userId): self
+    {
+        $this->userId = $userId;
+        return $this;
     }
 
     public function getDepartment(): ?Department
@@ -33,3 +45,4 @@ class Teacher extends User
         return $this;
     }
 }
+

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Configuración inicial y enrutamiento de la aplicación.
  * Activa la visualización de errores, define la ruta de vistas,
@@ -17,14 +18,22 @@ $database = new Database(); // Crea una instancia de la clase Database
 $connection = $database->getConnection(); // Obtiene la conexión
 
 // Importa las clases necesarias para el enrutamiento y controladores.
-use App\Infrastructure\Routing\Router;
+use App\Infrastructure\Routing\Router; 
 use App\Controllers\HomeController;
+use App\Controllers\AssignTeacherController;
+use App\Controllers\AssignStudentController;
 use App\Infrastructure\Routing\Request;
 
 $router = new Router(); // Crea una instancia del enrutador.
 
-// Define las rutas y los métodos que las manejan en el controlador.
 $router->addRoute('GET', '/', [new HomeController(), 'index']) // Ruta principal (inicio).
-        ->addRoute('GET', '/teachers', [new HomeController(), 'teachers']); // Ruta para "teachers".
+        ->addRoute('GET', '/teachers', [new HomeController(), 'teachers']) // Ruta para "teachers".
+
+        ->addRoute('GET', '/assign-teacher', [new AssignTeacherController(), 'assignTeacherPage']) // Página para asignar profesor a departamento
+        ->addRoute('POST', '/assign-teacher', [new AssignTeacherController(), 'assignTeacherAction']) // Acción para guardar cambios en asignaciones
+
+        ->addRoute('GET', '/assign-student', [new AssignStudentController(), 'assignStudentPage']) // Página para asignar alumno a curso
+        ->addRoute('POST', '/assign-student', [new AssignStudentController(), 'assignStudentAction']); // Acción para guardar cambios en asignaciones
+
 
 $router->dispatch(new Request()); // Procesa la solicitud y envía la respuesta correspondiente.

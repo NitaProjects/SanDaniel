@@ -27,6 +27,7 @@ class Student extends User
         $this->updateTimestamps();
     }
 
+
     public function getDni(): string
     {
         return $this->dni;
@@ -57,6 +58,17 @@ class Student extends User
     public function addEnrollment($enrollment): self
     {
         $this->enrollments[] = $enrollment;
+        return $this;
+    }
+
+    public function getCourses(): array
+    {
+        return $this->enrollments;
+    }
+
+    public function addCourse(Course $course): self
+    {
+        $this->enrollments[] = $course;
         return $this;
     }
 }

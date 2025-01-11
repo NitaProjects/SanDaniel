@@ -1,26 +1,34 @@
-<?php 
+<?php
 
-    /**
-     * Controlador principal de la aplicación, maneja las acciones de la página de inicio y profesores.
-     */
+namespace App\Controllers;
 
-    namespace App\Controllers;
+use App\Database\Database;
+use App\School\Repositories\Implementations\CourseRepository;
+use App\School\Repositories\Implementations\DegreeRepository;
 
-    class HomeController {
+class HomeController
+{
+    private CourseRepository $courseRepository;
 
-        /*
-         * index: Muestra la vista de inicio.
-         * Prepara los datos necesarios y llama a la vista 'home'.
-         */
-        function index() {
-            $data = ['name' => 'Colegio San Daniel']; // Datos a pasar a la vista.
-            echo view('home', $data); // Carga y muestra la vista 'home' con los datos.
-        }
-
-        /*
-         * teachers: Muestra un mensaje de texto sobre los profesores.
-         */
-        function teachers() {
-            echo 'teachers'; // Muestra el texto 'teachers'.
-        }
+    public function __construct()
+    {
+        $database = new Database();
+        $degreeRepo = new DegreeRepository($database->getConnection());
+        $this->courseRepository = new CourseRepository($database->getConnection(), $degreeRepo);
     }
+
+    public function index()
+    {
+        $courses = $this->courseRepository->getAll();
+        $data = [
+            'name' => 'Colegio San Daniel',
+            'courses' => $courses,
+        ];
+        echo view('home', $data);
+    }
+
+    public function teachers()
+    {
+        echo 'teachers';
+    }
+}

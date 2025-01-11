@@ -4,15 +4,18 @@ namespace App\School\Repositories\Implementations;
 
 use App\School\Entities\Teacher;
 use App\School\Repositories\Interfaces\ITeacherRepository;
+use App\School\Repositories\Implementations\DepartmentRepository;
 use PDO;
 
 class TeacherRepository implements ITeacherRepository
 {
     private PDO $db;
+    private DepartmentRepository $departmentRepo;
 
-    public function __construct(PDO $db)
+    public function __construct(PDO $db, DepartmentRepository $departmentRepo)
     {
         $this->db = $db;
+        $this->departmentRepo = $departmentRepo; // Inicializa el repositorio de departamentos
     }
 
     public function save(Teacher $teacher): void
@@ -72,39 +75,37 @@ class TeacherRepository implements ITeacherRepository
     }
 
     private function mapToTeacher(array $data): Teacher
-{
-    // Consulta los datos del usuario
-    $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :user_id");
-    $stmt->bindValue(':user_id', $data['user_id']);
-    $stmt->execute();
+    {
+        // Consulta los datos del usuario
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE id = :user_id");
+        $stmt->bindValue(':user_id', $data['user_id']);
+        $stmt->execute();
 
-    $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$userData) {
-        throw new \Exception("User not found for user_id: " . $data['user_id']);
-    }
-
-    $teacher = new Teacher(
-        $userData['first_name'],
-        $userData['last_name'],
-        $userData['email'],
-        $userData['password'],
-        $userData['user_type']
-    );
-
-    $teacher->setId($data['id']);
-    $teacher->setUserId($data['user_id']);
-
-    // Asociar el departamento si existe
-    if (!empty($data['department_id'])) {
-        $department = $this->departmentRepo->findById($data['department_id']);
-        if ($department) {
-            $teacher->addToDepartment($department);
+        if (!$userData) {
+            throw new \Exception("User not found for user_id: " . $data['user_id']);
         }
+
+        $teacher = new Teacher(
+            $userData['first_name'],
+            $userData['last_name'],
+            $userData['email'],
+            $userData['password'],
+            $userData['user_type']
+        );
+
+        $teacher->setId($data['id']);
+        $teacher->setUserId($data['user_id']);
+
+        // Asociar el departamento si existe
+        if (!empty($data['department_id'])) {
+            $department = $this->departmentRepo->findById($data['department_id']);
+            if ($department) {
+                $teacher->addToDepartment($department);
+            }
+        }
+
+        return $teacher;
     }
-
-    return $teacher;
-}
-
-
 }
