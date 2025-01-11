@@ -1,33 +1,62 @@
 <?php
 
-    /**
-     * Clase Student, representa a un estudiante en la escuela.
-     * Hereda de User y usa el trait Timestampable para gestionar marcas de tiempo.
-     * Contiene una lista de inscripciones y muestra el nombre de la escuela.
-     */
+namespace App\School\Entities;
 
-    namespace App\School\Entities;
+use App\School\Trait\Timestampable;
 
-    use App\School\Entities\User;
-    use App\School\Trait\Timestampable;
+class Student extends User
+{
+    use Timestampable;
 
-    class Student extends User {
-        use Timestampable; // Agrega métodos para manejar marcas de tiempo.
+    protected array $enrollments = [];
+    protected string $dni;
+    protected int $enrollmentYear;
 
-        protected $enrollments = []; // Array para almacenar las inscripciones del estudiante.
-
-        /*
-         * showSchool: Muestra el nombre de la escuela (constante MYSCHOOL de User).
-         */
-        public function showSchool() {
-            echo parent::MYSCHOOL; // Muestra el valor de la constante MYSCHOOL.
-        }
-
-        /*
-         * Constructor: Inicializa marcas de tiempo para el estudiante.
-         */
-        function __construct($email, $name) {
-            parent::__construct($email, $name); // Llama al constructor de User.
-            $this->updateTimestamps(); // Establece createdAt y updatedAt.
-        }
+    public function __construct(
+        string $firstName,
+        string $lastName,
+        string $email,
+        string $password,
+        string $userType,
+        string $dni,
+        int $enrollmentYear
+    ) {
+        parent::__construct($firstName, $lastName, $email, $password, $userType);
+        $this->dni = $dni;
+        $this->enrollmentYear = $enrollmentYear;
+        $this->updateTimestamps();
     }
+
+    public function getDni(): string
+    {
+        return $this->dni;
+    }
+
+    public function setDni(string $dni): self
+    {
+        $this->dni = $dni;
+        return $this;
+    }
+
+    public function getEnrollmentYear(): int
+    {
+        return $this->enrollmentYear;
+    }
+
+    public function setEnrollmentYear(int $enrollmentYear): self
+    {
+        $this->enrollmentYear = $enrollmentYear;
+        return $this;
+    }
+
+    public function getEnrollments(): array
+    {
+        return $this->enrollments;
+    }
+
+    public function addEnrollment($enrollment): self
+    {
+        $this->enrollments[] = $enrollment;
+        return $this;
+    }
+}

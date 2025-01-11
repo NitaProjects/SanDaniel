@@ -3,19 +3,19 @@
 namespace App\School\Entities;
 
 use App\School\Entities\Student;
-use App\School\Entities\Subject;
+use App\School\Entities\Course;
 
 class Enrollment
 {
     private int $id;
     private Student $student;
-    private ?Subject $subject = null;
+    private Course $course; 
     private \DateTime $enrollmentDate;
 
-    public function __construct(Student $student, Subject $subject, \DateTime $enrollmentDate)
+    public function __construct(Student $student, Course $course, \DateTime $enrollmentDate)
     {
         $this->student = $student;
-        $this->subject = $subject;
+        $this->course = $course;
         $this->enrollmentDate = $enrollmentDate;
     }
 
@@ -24,9 +24,9 @@ class Enrollment
         return $this->student;
     }
 
-    public function getSubject(): ?Subject
+    public function getCourse(): Course
     {
-        return $this->subject;
+        return $this->course;
     }
 
     public function getEnrollmentDate(): \DateTime

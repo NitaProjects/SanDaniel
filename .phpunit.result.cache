@@ -1,0 +1,1 @@
+{"version":1,"defects":{"Tests\\AssignStudentToCourseServiceTest::testAssignStudentToCourse":8,"Tests\\AssignTeacherToDepartmentServiceTest::testAssignTeacherToDepartment":8},"times":{"Tests\\AssignStudentToCourseServiceTest::testAssignStudentToCourse":0.004,"Tests\\AssignTeacherToDepartmentServiceTest::testAssignTeacherToDepartment":0.001}}

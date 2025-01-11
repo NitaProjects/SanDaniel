@@ -3,60 +3,33 @@
 namespace App\School\Entities;
 
 use App\School\Trait\Timestampable;
+use App\School\Entities\Department;
 
-class Student extends User
+class Teacher extends User
 {
     use Timestampable;
 
-    protected array $enrollments = [];
-    protected string $dni;
-    protected int $enrollmentYear;
+    protected ?Department $department = null;
 
     public function __construct(
         string $firstName,
         string $lastName,
         string $email,
         string $password,
-        string $userType,
-        string $dni,
-        int $enrollmentYear
+        string $userType
     ) {
         parent::__construct($firstName, $lastName, $email, $password, $userType);
-        $this->dni = $dni;
-        $this->enrollmentYear = $enrollmentYear;
         $this->updateTimestamps();
     }
 
-    public function getDni(): string
+    public function getDepartment(): ?Department
     {
-        return $this->dni;
+        return $this->department;
     }
 
-    public function setDni(string $dni): self
+    public function addToDepartment(Department $department): self
     {
-        $this->dni = $dni;
-        return $this;
-    }
-
-    public function getEnrollmentYear(): int
-    {
-        return $this->enrollmentYear;
-    }
-
-    public function setEnrollmentYear(int $enrollmentYear): self
-    {
-        $this->enrollmentYear = $enrollmentYear;
-        return $this;
-    }
-
-    public function getEnrollments(): array
-    {
-        return $this->enrollments;
-    }
-
-    public function addEnrollment($enrollment): self
-    {
-        $this->enrollments[] = $enrollment;
+        $this->department = $department;
         return $this;
     }
 }
