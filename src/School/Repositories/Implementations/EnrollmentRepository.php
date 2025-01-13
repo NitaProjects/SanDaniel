@@ -23,6 +23,20 @@ class EnrollmentRepository implements IEnrollmentRepository
 
     public function save(Enrollment $enrollment): void
     {
+        // Validar si ya existe la inscripción para evitar duplicados
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*) as count FROM enrollments 
+            WHERE student_id = :student_id AND subject_id = :subject_id
+        ");
+        $stmt->bindValue(':student_id', $enrollment->getStudent()->getId());
+        $stmt->bindValue(':subject_id', $enrollment->getSubject()->getId());
+        $stmt->execute();
+        $exists = $stmt->fetch(PDO::FETCH_ASSOC)['count'] > 0;
+
+        if ($exists) {
+            throw new \Exception("El estudiante ya está inscrito en esta asignatura.");
+        }
+
         if ($enrollment->getId()) {
             $stmt = $this->db->prepare("
                 UPDATE enrollments SET 
@@ -95,7 +109,7 @@ class EnrollmentRepository implements IEnrollmentRepository
         $subject = $this->subjectRepo->findById($data['subject_id']);
 
         if (!$student || !$subject) {
-            throw new \Exception("Invalid data: Student or Subject not found.");
+            throw new \Exception("Datos inválidos: Estudiante o asignatura no encontrados.");
         }
 
         $enrollment = new Enrollment($student, $subject, new \DateTime($data['enrollment_date']));

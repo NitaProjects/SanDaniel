@@ -31,10 +31,10 @@ $router->addRoute('GET', '/', [new HomeController(), 'index']) // Ruta principal
 
         ->addRoute('GET', '/assign-teacher', [new AssignTeacherController(), 'assignTeacherPage']) // Página para asignar profesor a departamento
         ->addRoute('POST', '/assign-teacher', [new AssignTeacherController(), 'assignTeacherAction']) // Acción para guardar cambios en asignaciones
+        ->addRoute('POST', '/delete-department', [new AssignTeacherController(), 'deleteDepartmentAction']) // Acción para eliminar departamentos asignados.
 
-        ->addRoute('GET', '/assign-student', [new AssignStudentController(), 'assignStudentPage']) // Página para asignar alumno a curso
+        ->addRoute('GET', '/assign-student', [new AssignStudentController(), 'assignStudentPage']) // Página para asignar alumno a asignatura
         ->addRoute('POST', '/assign-student', [new AssignStudentController(), 'assignStudentAction']) // Acción para guardar cambios en asignaciones
-
-        ->addRoute('POST', '/delete-department', [new AssignTeacherController(), 'deleteDepartmentAction']);
+        ->addRoute('POST', '/delete-enrollment', [new AssignStudentController(), 'deleteEnrollmentAction']); // Acción para eliminar inscripciones.
 
 $router->dispatch(new Request()); // Procesa la solicitud y envía la respuesta correspondiente.

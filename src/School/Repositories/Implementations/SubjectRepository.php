@@ -36,7 +36,7 @@ class SubjectRepository implements ISubjectRepository
         }
 
         $stmt->bindValue(':name', $subject->getName());
-        $stmt->bindValue(':course_id', $subject->getCourse()->getId());
+        $stmt->bindValue(':course_id', $subject->getCourse() ? $subject->getCourse()->getId() : null);
         $stmt->execute();
     }
 
@@ -76,15 +76,15 @@ class SubjectRepository implements ISubjectRepository
 
     private function mapToSubject(array $data): Subject
     {
-        $course = $this->courseRepo->findById($data['course_id']);
-
-        if (!$course) {
-            throw new \Exception("Course not found for course_id: " . $data['course_id']);
-        }
-
         $subject = new Subject($data['name']);
         $subject->setId($data['id']);
-        $subject->setCourse($course);
+
+        if (!empty($data['course_id'])) {
+            $course = $this->courseRepo->findById($data['course_id']);
+            if ($course) {
+                $subject->setCourse($course);
+            }
+        }
 
         return $subject;
     }

@@ -8,6 +8,9 @@ class Student extends User
 {
     use Timestampable;
 
+
+    protected int $id;
+    protected ?int $userId = null; 
     protected array $enrollments = [];
     protected string $dni;
     protected int $enrollmentYear;
@@ -19,15 +22,40 @@ class Student extends User
         string $password,
         string $userType,
         string $dni,
-        int $enrollmentYear
+        int $enrollmentYear,
+        ?int $userId = null // Añade el userId al constructor
     ) {
         parent::__construct($firstName, $lastName, $email, $password, $userType);
         $this->dni = $dni;
         $this->enrollmentYear = $enrollmentYear;
+        $this->userId = $userId; // Asigna el userId
         $this->updateTimestamps();
     }
 
+    public function getUserId(): ?int
+    {
+        return $this->userId;
+    }
 
+    public function setUserId(int $userId): self
+    {
+        $this->userId = $userId;
+        return $this;
+    }
+
+    // Métodos para manejar el ID del estudiante
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function setId(int $id): self
+    {
+        $this->id = $id;
+        return $this;
+    }
+
+    // Métodos para manejar el DNI
     public function getDni(): string
     {
         return $this->dni;
@@ -39,6 +67,7 @@ class Student extends User
         return $this;
     }
 
+    // Métodos para manejar el año de inscripción
     public function getEnrollmentYear(): int
     {
         return $this->enrollmentYear;
@@ -50,25 +79,28 @@ class Student extends User
         return $this;
     }
 
+    // Métodos para manejar las inscripciones (enrollments)
     public function getEnrollments(): array
     {
         return $this->enrollments;
     }
 
-    public function addEnrollment($enrollment): self
+    public function addEnrollment(Enrollment $enrollment): self
     {
         $this->enrollments[] = $enrollment;
         return $this;
     }
 
-    public function getCourses(): array
+    // Métodos para manejar las asignaturas (subjects)
+    public function getSubjects(): array
     {
-        return $this->enrollments;
+        return array_map(fn($enrollment) => $enrollment->getSubject(), $this->enrollments);
     }
 
-    public function addCourse(Course $course): self
+    public function addSubject(Subject $subject): self
     {
-        $this->enrollments[] = $course;
+        $enrollment = new Enrollment($this, $subject, new \DateTime());
+        $this->addEnrollment($enrollment);
         return $this;
     }
 }

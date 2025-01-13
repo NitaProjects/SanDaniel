@@ -4,18 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asignar Alumno a Curso</title>
+    <title>Asignar Estudiante a Asignatura</title>
     <link rel="stylesheet" href="../../styles/department.css">
 </head>
 
 <body>
-    <h1>Asignar Alumno a Curso</h1>
+    <h1>Asignar Estudiante a Asignatura</h1>
+
+    <!-- Tabla de estudiantes -->
+    <h2>Lista de Estudiantes</h2>
     <table>
         <thead>
             <tr>
-                <th>Alumno</th>
-                <th>Curso</th>
-                <th>Acciones</th>
+                <th>Estudiante</th>
+                <th>Asignaturas Inscritas</th>
             </tr>
         </thead>
         <tbody>
@@ -23,42 +25,96 @@
                 <tr>
                     <td><?= htmlspecialchars($student->getFirstName() . ' ' . $student->getLastName()); ?></td>
                     <td>
-                        <?php if (count($student->getCourses()) > 0): ?>
-                            <?php foreach ($student->getCourses() as $course): ?>
-                                <?= htmlspecialchars($course->getName()); ?><br>
+                        <button class="toggle-btn" onclick="toggleSubjects('student-<?= $student->getId(); ?>')">Ver Asignaturas</button>
+                        <ul id="student-<?= $student->getId(); ?>" class="subject-list" style="display: none;">
+                            <?php foreach ($student->getSubjects() as $subject): ?>
+                                <li>
+                                    <?= htmlspecialchars($subject->getName()); ?>
+                                    <form action="/delete-enrollment" method="POST" class="inline-form" onsubmit="return deleteEnrollment(event, this);">
+                                        <input type="hidden" name="student_id" value="<?= $student->getUserId(); ?>">
+                                        <input type="hidden" name="subject_id" value="<?= $subject->getId(); ?>">
+                                        <button type="submit" class="btn-delete">Eliminar</button>
+                                    </form>
+                                </li>
                             <?php endforeach; ?>
-                        <?php else: ?>
-                            Sin asignar
-                        <?php endif; ?>
-                    </td>
-
-                    <td>
-                        <a href="/edit-student?id=<?= $student->getId(); ?>">Editar</a>
-                        <form action="/delete-student" method="POST" style="display:inline;">
-                            <input type="hidden" name="id" value="<?= $student->getId(); ?>">
-                            <button type="submit">Eliminar</button>
-                        </form>
+                        </ul>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
+
     </table>
-    <form action="/assign-student" method="POST">
-        <h3>Asignar Alumno</h3>
-        <label for="student">Alumno:</label>
+
+    <!-- Formulario para asignar asignaturas -->
+    <h3>Asignar Estudiante a Asignatura</h3>
+    <form action="/assign-student" method="POST" class="form-assign">
+        <label for="student">Estudiante:</label>
         <select name="student_id" required>
-            <?php foreach ($studentsWithoutCourse as $student): ?>
-                <option value="<?= $student->getId(); ?>"><?= htmlspecialchars($student->getFirstName() . ' ' . $student->getLastName()); ?></option>
+            <?php foreach ($students as $student): ?>
+                <option value="<?= $student->getId(); ?>">
+                    <?= htmlspecialchars($student->getFirstName() . ' ' . $student->getLastName()); ?>
+                </option>
             <?php endforeach; ?>
         </select>
-        <label for="course">Curso:</label>
-        <select name="course_id" required>
-            <?php foreach ($courses as $course): ?>
-                <option value="<?= $course->getId(); ?>"><?= htmlspecialchars($course->getName()); ?></option>
+
+
+        <label for="subject">Asignatura:</label>
+        <select name="subject_id" required>
+            <?php foreach ($subjects as $subject): ?>
+                <option value="<?= $subject->getId(); ?>">
+                    <?= htmlspecialchars($subject->getName()); ?>
+                </option>
             <?php endforeach; ?>
         </select>
-        <button type="submit">Asignar</button>
+
+        <button type="submit" class="btn-assign">Asignar</button>
     </form>
+
+    <script>
+        function toggleSubjects(id) {
+            const element = document.getElementById(id);
+            if (element.style.display === "none") {
+                element.style.display = "block";
+            } else {
+                element.style.display = "none";
+            }
+        }
+
+        function deleteEnrollment(event, form) {
+            event.preventDefault(); // Evita que el formulario recargue la página
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('No se pudo eliminar la inscripción');
+                    }
+                    return response.json(); // Asume que el backend devuelve una respuesta JSON
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Elimina el elemento visualmente
+                        const listItem = form.closest('li');
+                        if (listItem) {
+                            listItem.remove();
+                        }
+                        alert('La inscripción fue eliminada con éxito.');
+                    } else {
+                        alert(data.message || 'Error al eliminar la inscripción.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Hubo un problema al procesar la solicitud.');
+                });
+
+            return false;
+        }
+    </script>
 </body>
 
 </html>

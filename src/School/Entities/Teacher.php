@@ -23,6 +23,8 @@ class Teacher extends User
         $this->updateTimestamps();
     }
 
+    
+
     public function getUserId(): ?int
     {
         return $this->userId;
