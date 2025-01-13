@@ -83,6 +83,17 @@ class TeacherRepository implements ITeacherRepository
         $stmt->execute();
     }
 
+    public function deleteByTeacherAndDepartment(int $teacherId, int $departmentId): void
+{
+    $stmt = $this->db->prepare(
+        "DELETE FROM teachers WHERE user_id = :teacher_id AND department_id = :department_id"
+    );
+    $stmt->bindValue(':teacher_id', $teacherId);
+    $stmt->bindValue(':department_id', $departmentId);
+    $stmt->execute();
+}
+
+
     public function getAll(): array
     {
         $stmt = $this->db->prepare(

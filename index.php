@@ -33,7 +33,8 @@ $router->addRoute('GET', '/', [new HomeController(), 'index']) // Ruta principal
         ->addRoute('POST', '/assign-teacher', [new AssignTeacherController(), 'assignTeacherAction']) // Acción para guardar cambios en asignaciones
 
         ->addRoute('GET', '/assign-student', [new AssignStudentController(), 'assignStudentPage']) // Página para asignar alumno a curso
-        ->addRoute('POST', '/assign-student', [new AssignStudentController(), 'assignStudentAction']); // Acción para guardar cambios en asignaciones
+        ->addRoute('POST', '/assign-student', [new AssignStudentController(), 'assignStudentAction']) // Acción para guardar cambios en asignaciones
 
+        ->addRoute('POST', '/delete-department', [new AssignTeacherController(), 'deleteDepartmentAction']);
 
 $router->dispatch(new Request()); // Procesa la solicitud y envía la respuesta correspondiente.

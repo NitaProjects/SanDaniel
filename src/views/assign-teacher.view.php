@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Asignar Profesor a Departamento</title>
     <link rel="stylesheet" href="../../styles/department.css">
 </head>
+
 <body>
     <h1>Asignar Profesor a Departamento</h1>
 
@@ -16,13 +18,12 @@
             <tr>
                 <th>Profesor</th>
                 <th>Departamentos Asignados</th>
-                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            <?php 
+            <?php
             $uniqueTeachers = [];
-            foreach ($teachers as $teacher): 
+            foreach ($teachers as $teacher):
                 if (in_array($teacher->getUserId(), $uniqueTeachers)) {
                     continue; // Evita duplicados
                 }
@@ -31,20 +32,22 @@
                 <tr>
                     <td><?= htmlspecialchars($teacher->getFirstName() . ' ' . $teacher->getLastName()); ?></td>
                     <td>
-                        <button onclick="toggleDepartments('teacher-<?= $teacher->getId(); ?>')">Ver Departamentos</button>
-                        <ul id="teacher-<?= $teacher->getId(); ?>" style="display: none;">
+                        <button class="toggle-btn" onclick="toggleDepartments('teacher-<?= $teacher->getId(); ?>')">Ver Departamentos</button>
+                        <ul id="teacher-<?= $teacher->getId(); ?>" class="department-list" style="display: none;">
                             <?php foreach ($teachers as $t): ?>
                                 <?php if ($t->getUserId() === $teacher->getUserId() && $t->getDepartment()): ?>
-                                    <li><?= htmlspecialchars($t->getDepartment()->getName()); ?></li>
+                                    <li>
+                                        <?= htmlspecialchars($t->getDepartment()->getName()); ?>
+                                        <form action="/delete-department" method="POST" class="inline-form" onsubmit="return deleteDepartment(event, this);">
+                                            <input type="hidden" name="teacher_id" value="<?= $teacher->getUserId(); ?>">
+                                            <input type="hidden" name="department_id" value="<?= $t->getDepartment()->getId(); ?>">
+                                            <button type="submit" class="btn-delete">Eliminar</button>
+                                        </form>
+                                    </li>
                                 <?php endif; ?>
                             <?php endforeach; ?>
+
                         </ul>
-                    </td>
-                    <td>
-                        <form action="/delete-teacher" method="POST" style="display:inline;">
-                            <input type="hidden" name="id" value="<?= $teacher->getId(); ?>">
-                            <button type="submit">Eliminar</button>
-                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -53,10 +56,17 @@
 
     <!-- Formulario para asignar departamento -->
     <h3>Asignar Profesor a Departamento</h3>
-    <form action="/assign-teacher" method="POST">
+    <form action="/assign-teacher" method="POST" class="form-assign">
         <label for="teacher">Profesor:</label>
         <select name="teacher_id" required>
-            <?php foreach ($teachers as $teacher): ?>
+            <?php
+            $teacherIds = [];
+            foreach ($teachers as $teacher):
+                if (in_array($teacher->getUserId(), $teacherIds)) {
+                    continue; // Evita duplicados
+                }
+                $teacherIds[] = $teacher->getUserId();
+            ?>
                 <option value="<?= $teacher->getUserId(); ?>">
                     <?= htmlspecialchars($teacher->getFirstName() . ' ' . $teacher->getLastName()); ?>
                 </option>
@@ -72,7 +82,7 @@
             <?php endforeach; ?>
         </select>
 
-        <button type="submit">Asignar</button>
+        <button type="submit" class="btn-assign">Asignar</button>
     </form>
 
     <script>
@@ -84,6 +94,42 @@
                 element.style.display = "none";
             }
         }
+        
+    function deleteDepartment(event, form) {
+        event.preventDefault(); // Evita que el formulario recargue la página
+
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('No se pudo eliminar el departamento');
+            }
+            return response.json(); // Asume que el backend devuelve una respuesta JSON
+        })
+        .then(data => {
+            if (data.success) {
+                // Elimina el elemento visualmente
+                const listItem = form.closest('li');
+                if (listItem) {
+                    listItem.remove();
+                }
+                alert('El departamento fue eliminado con éxito.');
+            } else {
+                alert(data.message || 'Error al eliminar el departamento.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Hubo un problema al procesar la solicitud.');
+        });
+
+        return false; // Previene el comportamiento normal del formulario
+    }
     </script>
 </body>
+
 </html>
