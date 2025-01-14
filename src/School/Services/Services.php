@@ -6,7 +6,7 @@ use App\School\Repositories\Implementations\TeacherRepository;
 use App\School\Repositories\Implementations\DepartmentRepository;
 use App\School\Repositories\Implementations\StudentRepository;
 use App\School\Repositories\Implementations\EnrollmentRepository;
-use App\School\Repositories\Implementations\CourseRepository;
+use App\School\Repositories\Implementations\SubjectRepository;
 
 class Services
 {
@@ -21,7 +21,7 @@ class Services
             new DepartmentRepository($db)
         ));
 
-        $this->addServices('studentService', fn() => new \App\School\Services\AssignStudentToCourseService(
+        $this->addServices('studentService', fn() => new \App\School\Services\AssignStudentToSubjectService(
             new StudentRepository($db),
             new EnrollmentRepository($db)
         ));

@@ -3,7 +3,7 @@
 namespace Tests;
 
 use PHPUnit\Framework\TestCase;
-use App\School\Services\AssignStudentToSubjectService; // Servicio corregido
+use App\School\Services\AssignStudentToSubjectService; 
 use App\School\Entities\Student;
 use App\School\Entities\Subject;
 use App\School\Repositories\Implementations\StudentRepository;
@@ -33,7 +33,7 @@ class AssignStudentToSubjectServiceTest extends TestCase
         $student = new Student("John", "Doe", "john@example.com", "password", "student", "12345678A", 2022);
         $student->setId(1);
 
-        $subject = new Subject("Mathematics"); // Cambiado a Subject
+        $subject = new Subject("Mathematics"); 
         $subject->setId(1);
 
         // Ejecutar el caso de uso
