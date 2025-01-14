@@ -2,7 +2,7 @@ function loadContent(entity) {
     const contentContainer = document.getElementById('dynamic-content');
 
     // Asegúrate de que apunte al directorio correcto
-    const viewPath = `/src/views/${entity}.view.php`;
+    const viewPath = `/load-view.php?entity=${entity}`;
 
     fetch(viewPath)
         .then(response => {

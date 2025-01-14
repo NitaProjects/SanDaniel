@@ -36,7 +36,7 @@ class Router {
             if (preg_match("#^$pattern$#", $path, $matches)) {
                 array_shift($matches); // Quitar el path completo
                 $this->executeAction($action, $matches);
-                die; // Detiene el flujo después de ejecutar la acción
+                return; // Detiene el flujo después de ejecutar la acción
             }
         }
     
