@@ -4,14 +4,16 @@
  * Configuración inicial y carga de servicios
  */
 
-ini_set('display_errors', 'On'); // Habilita la visualización de errores para depuración
-define('VIEWS', __DIR__ . '/src/views'); // Define la ruta base de vistas
+ini_set('display_errors', 'On'); 
+define('VIEWS', __DIR__ . '/src/views'); 
 
-require __DIR__ . '/vendor/autoload.php'; // Carga automática de dependencias con Composer
+require __DIR__ . '/vendor/autoload.php'; 
 
 use App\Database\Database;
 use App\Infrastructure\Routing\Router;
 use App\Infrastructure\Routing\Request;
+use App\Controllers\HomeController;
+
 
 use App\School\Repositories\Implementations\UserRepository;
 use App\School\Services\UserService;
@@ -58,14 +60,56 @@ $connection = $database->getConnection();
 // Configuración del enrutador
 $router = new Router();
 
+$homeController = new HomeController();
+$router->addRoute('GET', '/', [$homeController, 'index']);
+$router->addRoute('GET', '/management', [$homeController, 'management']);
+
+
 // Instancia de repositorio, servicio y controlador para usuarios
 $userRepository = new UserRepository($connection);
 $userService = new UserService($userRepository);
 $userController = new UserController($userService);
 
+// Instancia de repositorio, servicio y controlador para profesores
 $teacherRepository = new TeacherRepository($connection);
 $teacherService = new TeacherService($teacherRepository);
 $teacherController = new TeacherController($teacherService);
+
+// Instancia de repositorio, servicio y controlador para estudiantes
+$studentRepository = new StudentRepository($connection);
+$studentService = new StudentService($studentRepository);
+$studentController = new StudentController($studentService);
+
+// Instancia de repositorio, servicio y controlador para asignaturas
+$subjectRepository = new SubjectRepository($connection);
+$subjectService = new SubjectService($subjectRepository);
+$subjectController = new SubjectController($subjectService);
+
+// Instancia de repositorio, servicio y controlador para cursos
+$courseRepository = new CourseRepository($connection);
+$courseService = new CourseService($courseRepository);
+$courseController = new CourseController($courseService);
+
+// Instancia de repositorio, servicio y controlador para titulaciones
+$degreeRepository = new DegreeRepository($connection);
+$degreeService = new DegreeService($degreeRepository);
+$degreeController = new DegreeController($degreeService);
+
+// Instancia de repositorio, servicio y controlador para departamentos
+$departmentRepository = new DepartmentRepository($connection);
+$departmentService = new DepartmentService($departmentRepository);
+$departmentController = new DepartmentController($departmentService);
+
+// Instancia de repositorio, servicio y controlador para exámenes
+$examRepository = new ExamRepository($connection);
+$examService = new ExamService($examRepository);
+$examController = new ExamController($examService);
+
+// Instancia de repositorio, servicio y controlador para matrículas
+$enrollmentRepository = new EnrollmentRepository($connection);
+$enrollmentService = new EnrollmentService($enrollmentRepository);
+$enrollmentController = new EnrollmentController($enrollmentService);
+
 
 // Añadir rutas del controlador de usuarios
 $router->addRoute('POST', '/users', [new UserController($userService), 'createUser']);
@@ -116,7 +160,6 @@ $router->addRoute('POST', '/courses', [new CourseController($courseService), 'cr
 $router->addRoute('GET', '/courses', [new CourseController($courseService), 'getAllCourses']);
 $router->addRoute('GET', '/courses/{id}', [new CourseController($courseService), 'getCourseById']);
 $router->addRoute('DELETE', '/courses/{id}', [new CourseController($courseService), 'deleteCourse']);
-
 
 
 

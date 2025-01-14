@@ -21,28 +21,47 @@ class Router {
      * Verifica si la ruta solicitada existe y, de ser así, llama a la función asociada.
      */
     function dispatch(Request $request) {
-        $method = $request->getMethod(); // Obtiene el método HTTP de la solicitud.
-        $path = $request->getPath(); // Obtiene el path solicitado.
-        
-        // Verifica si la ruta existe en el array de rutas.
+        $method = $request->getMethod();
+        $path = $request->getPath();
+    
+        // Verificar rutas estáticas
         if (isset($this->routes[$method][$path])) {
-            $action = $this->routes[$method][$path];
-            
-            if (is_callable($action)) {
-                call_user_func($action); // Ejecuta la función callable.
-            } elseif (is_array($action) && count($action) === 2) {
-                [$controller, $method] = $action;
-                if (method_exists($controller, $method)) {
-                    call_user_func([$controller, $method]); // Llama al método del controlador.
-                } else {
-                    throw new \Exception("Método $method no encontrado en el controlador.");
-                }
+            $this->executeAction($this->routes[$method][$path]);
+            die; // Detiene el flujo después de ejecutar la acción
+        }
+    
+        // Verificar rutas dinámicas
+        foreach ($this->routes[$method] ?? [] as $route => $action) {
+            $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_]+)', $route);
+            if (preg_match("#^$pattern$#", $path, $matches)) {
+                array_shift($matches); // Quitar el path completo
+                $this->executeAction($action, $matches);
+                die; // Detiene el flujo después de ejecutar la acción
+            }
+        }
+    
+        // Ruta no encontrada
+        http_response_code(404);
+        echo "Route not found";
+        die; // Detiene el flujo si no se encuentra la ruta
+    }
+    
+    
+    
+    
+    private function executeAction($action, array $params = []) {
+        if (is_callable($action)) {
+            call_user_func_array($action, $params);
+        } elseif (is_array($action) && count($action) === 2) {
+            [$controller, $method] = $action;
+            if (method_exists($controller, $method)) {
+                call_user_func_array([$controller, $method], $params);
             } else {
-                throw new \Exception("Acción no válida para la ruta.");
+                throw new \Exception("Método $method no encontrado en el controlador.");
             }
         } else {
-            http_response_code(404); // Envía un código de respuesta 404.
-            echo "Route not found"; // Muestra un mensaje de error.
+            throw new \Exception("Acción no válida para la ruta.");
         }
     }
+    
 }
