@@ -63,6 +63,47 @@ class UserRepository implements IUserRepository
         return $data ? $this->mapToUser($data) : null;
     }
 
+    public function findByUserType(string $userType): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM users WHERE user_type = :user_type");
+        $stmt->bindValue(':user_type', $userType);
+        $stmt->execute();
+
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToUser'], $users);
+    }
+
+    public function findByName(string $firstName, string $lastName): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM users 
+            WHERE first_name = :first_name AND last_name = :last_name
+        ");
+        $stmt->bindValue(':first_name', $firstName);
+        $stmt->bindValue(':last_name', $lastName);
+        $stmt->execute();
+
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToUser'], $users);
+    }
+
+    public function findByCriteria(array $criteria): array
+    {
+        $query = "SELECT * FROM users WHERE 1=1";
+        $params = [];
+
+        foreach ($criteria as $key => $value) {
+            $query .= " AND {$key} = :{$key}";
+            $params[":{$key}"] = $value;
+        }
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
+
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToUser'], $users);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM users WHERE id = :id");

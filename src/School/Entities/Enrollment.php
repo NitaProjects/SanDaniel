@@ -2,21 +2,18 @@
 
 namespace App\School\Entities;
 
-use App\School\Entities\Student;
-use App\School\Entities\Subject;
-
 class Enrollment
 {
-    private int $id; // ID de la inscripción
-    private Student $student; // Relación con el estudiante
-    private Subject $subject; // Relación con la asignatura
-    private \DateTime $enrollmentDate; // Fecha de inscripción
+    private int $id; 
+    private int $studentId; 
+    private int $subjectId; 
+    private \DateTime $enrollmentDate; 
 
-    public function __construct(Student $student, Subject $subject, \DateTime $enrollmentDate)
+    public function __construct(int $studentId, int $subjectId, \DateTime $enrollmentDate)
     {
-        $this->student = $student;
-        $this->subject = $subject;
-        $this->enrollmentDate = $enrollmentDate;
+        $this->setStudentId($studentId);
+        $this->setSubjectId($subjectId);
+        $this->setEnrollmentDate($enrollmentDate);
     }
 
     // Métodos para manejar el ID
@@ -27,31 +24,40 @@ class Enrollment
 
     public function setId(int $id): self
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID must be a positive integer.");
+        }
         $this->id = $id;
         return $this;
     }
 
-    // Métodos para manejar el estudiante
-    public function getStudent(): Student
+    // Métodos para manejar el studentId
+    public function getStudentId(): int
     {
-        return $this->student;
+        return $this->studentId;
     }
 
-    public function setStudent(Student $student): self
+    public function setStudentId(int $studentId): self
     {
-        $this->student = $student;
+        if ($studentId <= 0) {
+            throw new \InvalidArgumentException("Student ID must be a positive integer.");
+        }
+        $this->studentId = $studentId;
         return $this;
     }
 
-    // Métodos para manejar la asignatura
-    public function getSubject(): Subject
+    // Métodos para manejar el subjectId
+    public function getSubjectId(): int
     {
-        return $this->subject;
+        return $this->subjectId;
     }
 
-    public function setSubject(Subject $subject): self
+    public function setSubjectId(int $subjectId): self
     {
-        $this->subject = $subject;
+        if ($subjectId <= 0) {
+            throw new \InvalidArgumentException("Subject ID must be a positive integer.");
+        }
+        $this->subjectId = $subjectId;
         return $this;
     }
 

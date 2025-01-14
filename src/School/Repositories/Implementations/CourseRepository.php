@@ -3,25 +3,22 @@
 namespace App\School\Repositories\Implementations;
 
 use App\School\Entities\Course;
-use App\School\Entities\Degree;
 use App\School\Repositories\Interfaces\ICourseRepository;
-use App\School\Repositories\Implementations\DegreeRepository;
 use PDO;
 
 class CourseRepository implements ICourseRepository
 {
     private PDO $db;
-    private DegreeRepository $degreeRepo;
 
-    public function __construct(PDO $db, DegreeRepository $degreeRepo)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
-        $this->degreeRepo = $degreeRepo;
     }
 
     public function save(Course $course): void
     {
         if ($course->getId()) {
+            // Actualizar curso existente
             $stmt = $this->db->prepare("
                 UPDATE courses SET 
                     name = :name,
@@ -30,6 +27,7 @@ class CourseRepository implements ICourseRepository
             ");
             $stmt->bindValue(':id', $course->getId());
         } else {
+            // Crear nuevo curso
             $stmt = $this->db->prepare("
                 INSERT INTO courses (name, degree_id)
                 VALUES (:name, :degree_id)
@@ -37,7 +35,7 @@ class CourseRepository implements ICourseRepository
         }
 
         $stmt->bindValue(':name', $course->getName());
-        $stmt->bindValue(':degree_id', $course->getDegree() ? $course->getDegree()->getId() : null);
+        $stmt->bindValue(':degree_id', $course->getDegreeId());
         $stmt->execute();
     }
 
@@ -61,6 +59,16 @@ class CourseRepository implements ICourseRepository
         return array_map([$this, 'mapToCourse'], $courses);
     }
 
+    public function findByName(string $name): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM courses WHERE name LIKE :name");
+        $stmt->bindValue(':name', "%$name%");
+        $stmt->execute();
+
+        $courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToCourse'], $courses);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM courses WHERE id = :id");
@@ -77,17 +85,8 @@ class CourseRepository implements ICourseRepository
 
     private function mapToCourse(array $data): Course
     {
-        $course = new Course($data['name']);
+        $course = new Course($data['name'], $data['degree_id']);
         $course->setId($data['id']);
-
-        // Asociar la titulación si existe
-        if (!empty($data['degree_id'])) {
-            $degree = $this->degreeRepo->findById($data['degree_id']);
-            if ($degree) {
-                $course->setDegree($degree);
-            }
-        }
-
         return $course;
     }
 }

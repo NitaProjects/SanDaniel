@@ -2,17 +2,15 @@
 
 namespace App\School\Entities;
 
-use App\School\Entities\Course;
-
 class Degree
 {
-    private int $id;
-    private string $name;
-    private array $courses = [];
-
-    public function __construct(string $name)
+    private int $id;              
+    private string $name;         
+    private int $durationYears;   
+    public function __construct(string $name, int $durationYears)
     {
-        $this->name = $name;
+        $this->setName($name);
+        $this->setDurationYears($durationYears);
     }
 
     public function getId(): int
@@ -22,6 +20,9 @@ class Degree
 
     public function setId(int $id): self
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID must be a positive integer.");
+        }
         $this->id = $id;
         return $this;
     }
@@ -33,18 +34,27 @@ class Degree
 
     public function setName(string $name): self
     {
+        if (empty($name)) {
+            throw new \InvalidArgumentException("Degree name cannot be empty.");
+        }
+        if (strlen($name) > 150) {
+            throw new \InvalidArgumentException("Degree name cannot exceed 150 characters.");
+        }
         $this->name = $name;
         return $this;
     }
 
-    public function addCourse(Course $course): self
+    public function getDurationYears(): int
     {
-        $this->courses[] = $course;
-        return $this;
+        return $this->durationYears;
     }
 
-    public function getCourses(): array
+    public function setDurationYears(int $durationYears): self
     {
-        return $this->courses;
+        if ($durationYears <= 0) {
+            throw new \InvalidArgumentException("Duration years must be a positive integer.");
+        }
+        $this->durationYears = $durationYears;
+        return $this;
     }
 }

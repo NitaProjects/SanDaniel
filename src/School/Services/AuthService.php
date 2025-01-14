@@ -2,7 +2,7 @@
 
 namespace App\School\Services;
 
-use App\School\Repositories\UserRepository;
+use App\School\Repositories\Implementations\UserRepository;
 
 class AuthService {
     private $userRepository;

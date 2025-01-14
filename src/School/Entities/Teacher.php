@@ -2,49 +2,46 @@
 
 namespace App\School\Entities;
 
-use App\School\Trait\Timestampable;
-use App\School\Entities\Department;
-
 class Teacher extends User
 {
-    use Timestampable;
-
-    private ?int $userId = null; // Asegúrate de definir esta propiedad.
-    private ?Department $department = null;
+    private int $id;      
+    private int $userId;  
 
     public function __construct(
         string $firstName,
         string $lastName,
         string $email,
-        string $password,
-        string $userType
+        string $password
     ) {
-        parent::__construct($firstName, $lastName, $email, $password, $userType);
-        $this->updateTimestamps();
+        parent::__construct($firstName, $lastName, $email, $password, 'teacher');
     }
 
-    
+    // Obtener el ID del profesor
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
-    public function getUserId(): ?int
+    // Establecer el ID del profesor
+    public function setId(int $id): self
+    {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID must be a positive integer.");
+        }
+        $this->id = $id;
+        return $this;
+    }
+
+    // Obtener el userId relacionado
+    public function getUserId(): int
     {
         return $this->userId;
     }
 
+    // Establecer el userId relacionado
     public function setUserId(int $userId): self
     {
         $this->userId = $userId;
         return $this;
     }
-
-    public function getDepartment(): ?Department
-    {
-        return $this->department;
-    }
-
-    public function addToDepartment(Department $department): self
-    {
-        $this->department = $department;
-        return $this;
-    }
 }
-

@@ -2,29 +2,16 @@
 
 namespace App\School\Entities;
 
-use App\School\Entities\Subject;
-
 class Course
 {
     protected int $id;
     protected string $name;
-    protected array $subjects = [];
-    protected ?Degree $degree = null;
+    protected int $degreeId; 
 
-    public function __construct(string $name)
+    public function __construct(string $name, int $degreeId)
     {
-        $this->name = $name;
-    }
-
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): self
-    {
-        $this->name = $name;
-        return $this;
+        $this->setName($name);
+        $this->setDegreeId($degreeId);
     }
 
     public function getId(): int
@@ -34,29 +21,41 @@ class Course
 
     public function setId(int $id): self
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID must be a positive integer.");
+        }
         $this->id = $id;
         return $this;
     }
 
-    public function addSubject(Subject $subject): self
+    public function getName(): string
     {
-        $this->subjects[] = $subject;
+        return $this->name;
+    }
+
+    public function setName(string $name): self
+    {
+        if (empty($name)) {
+            throw new \InvalidArgumentException("Course name cannot be empty.");
+        }
+        if (strlen($name) > 150) {
+            throw new \InvalidArgumentException("Course name cannot exceed 150 characters.");
+        }
+        $this->name = $name;
         return $this;
     }
 
-    public function getSubjects(): array
+    public function getDegreeId(): int
     {
-        return $this->subjects;
+        return $this->degreeId;
     }
 
-    public function setDegree(Degree $degree): self
+    public function setDegreeId(int $degreeId): self
     {
-        $this->degree = $degree;
+        if ($degreeId <= 0) {
+            throw new \InvalidArgumentException("Degree ID must be a positive integer.");
+        }
+        $this->degreeId = $degreeId;
         return $this;
-    }
-
-    public function getDegree(): ?Degree
-    {
-        return $this->degree;
     }
 }

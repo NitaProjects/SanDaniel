@@ -18,11 +18,11 @@ class User
         string $password,
         string $userType
     ) {
-        $this->firstName = $firstName;
-        $this->lastName = $lastName;
+        $this->setFirstName($firstName);
+        $this->setLastName($lastName);
         $this->setEmail($email);
-        $this->password = $password;
-        $this->userType = $userType;
+        $this->setPassword($password);
+        $this->setUserType($userType);
     }
 
     // Getters and Setters
@@ -44,6 +44,9 @@ class User
 
     public function setFirstName(string $firstName): self
     {
+        if (empty($firstName)) {
+            throw new \InvalidArgumentException("First name cannot be empty");
+        }
         $this->firstName = $firstName;
         return $this;
     }
@@ -55,6 +58,9 @@ class User
 
     public function setLastName(string $lastName): self
     {
+        if (empty($lastName)) {
+            throw new \InvalidArgumentException("Last name cannot be empty");
+        }
         $this->lastName = $lastName;
         return $this;
     }
@@ -80,6 +86,9 @@ class User
 
     public function setPassword(string $password): self
     {
+        if (strlen($password) < 6) {
+            throw new \InvalidArgumentException("Password must be at least 6 characters long");
+        }
         $this->password = $password;
         return $this;
     }

@@ -2,17 +2,16 @@
 
 namespace App\School\Entities;
 
-use App\School\Entities\Course;
-
 class Subject
 {
     protected int $id;
     protected string $name;
-    protected ?Course $course = null;
+    protected int $courseId;
 
-    public function __construct(string $name)
+    public function __construct(string $name, int $courseId)
     {
-        $this->name = $name;
+        $this->setName($name);
+        $this->setCourseId($courseId);
     }
 
     public function getId(): int
@@ -22,6 +21,9 @@ class Subject
 
     public function setId(int $id): self
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID must be a positive integer.");
+        }
         $this->id = $id;
         return $this;
     }
@@ -33,18 +35,27 @@ class Subject
 
     public function setName(string $name): self
     {
+        if (empty($name)) {
+            throw new \InvalidArgumentException("Subject name cannot be empty.");
+        }
+        if (strlen($name) > 150) {
+            throw new \InvalidArgumentException("Subject name cannot exceed 150 characters.");
+        }
         $this->name = $name;
         return $this;
     }
 
-    public function getCourse(): ?Course
+    public function getCourseId(): int
     {
-        return $this->course;
+        return $this->courseId;
     }
 
-    public function setCourse(Course $course): self
+    public function setCourseId(int $courseId): self
     {
-        $this->course = $course;
+        if ($courseId <= 0) {
+            throw new \InvalidArgumentException("Course ID must be a positive integer.");
+        }
+        $this->courseId = $courseId;
         return $this;
     }
 }

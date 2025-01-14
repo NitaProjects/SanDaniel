@@ -10,6 +10,7 @@ interface IEnrollmentRepository
     public function findById(int $id): ?Enrollment; // Encuentra una matrícula por su ID.
     public function findByStudentId(int $studentId): array; // Encuentra todas las matrículas de un estudiante.
     public function findBySubjectId(int $subjectId): array; // Encuentra todas las matrículas de una asignatura.
+    public function findByEnrollmentDate(\DateTime $enrollmentDate): array; // Encuentra matrículas por su fecha de inscripción.
     public function delete(int $id): void; // Elimina una matrícula por su ID.
     public function getAll(): array; // Devuelve todas las matrículas.
 }

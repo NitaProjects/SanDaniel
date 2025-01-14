@@ -18,6 +18,7 @@ class DepartmentRepository implements IDepartmentRepository
     public function save(Department $department): void
     {
         if ($department->getId()) {
+            // Actualizar departamento existente
             $stmt = $this->db->prepare("
                 UPDATE departments SET 
                     name = :name
@@ -25,6 +26,7 @@ class DepartmentRepository implements IDepartmentRepository
             ");
             $stmt->bindValue(':id', $department->getId());
         } else {
+            // Crear nuevo departamento
             $stmt = $this->db->prepare("
                 INSERT INTO departments (name)
                 VALUES (:name)
@@ -39,6 +41,16 @@ class DepartmentRepository implements IDepartmentRepository
     {
         $stmt = $this->db->prepare("SELECT * FROM departments WHERE id = :id");
         $stmt->bindValue(':id', $id);
+        $stmt->execute();
+
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data ? $this->mapToDepartment($data) : null;
+    }
+
+    public function findByName(string $name): ?Department
+    {
+        $stmt = $this->db->prepare("SELECT * FROM departments WHERE name = :name");
+        $stmt->bindValue(':name', $name);
         $stmt->execute();
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -62,7 +74,8 @@ class DepartmentRepository implements IDepartmentRepository
     private function mapToDepartment(array $data): Department
     {
         $department = new Department($data['name']);
-        $department->setId($data['id']);
+        $department->setId($data['id']); 
+
         return $department;
     }
 }

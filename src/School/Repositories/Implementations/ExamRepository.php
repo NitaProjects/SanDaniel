@@ -4,18 +4,15 @@ namespace App\School\Repositories\Implementations;
 
 use App\School\Entities\Exam;
 use App\School\Repositories\Interfaces\IExamRepository;
-use App\School\Repositories\Implementations\SubjectRepository;
 use PDO;
 
 class ExamRepository implements IExamRepository
 {
     private PDO $db;
-    private SubjectRepository $subjectRepo;
 
-    public function __construct(PDO $db, SubjectRepository $subjectRepo)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
-        $this->subjectRepo = $subjectRepo;
     }
 
     public function save(Exam $exam): void
@@ -24,21 +21,21 @@ class ExamRepository implements IExamRepository
             $stmt = $this->db->prepare("
                 UPDATE exams SET 
                     subject_id = :subject_id,
-                    exam_date = :exam_date,
-                    description = :description
+                    description = :description,
+                    exam_date = :exam_date
                 WHERE id = :id
             ");
             $stmt->bindValue(':id', $exam->getId());
         } else {
             $stmt = $this->db->prepare("
-                INSERT INTO exams (subject_id, exam_date, description)
-                VALUES (:subject_id, :exam_date, :description)
+                INSERT INTO exams (subject_id, description, exam_date)
+                VALUES (:subject_id, :description, :exam_date)
             ");
         }
 
-        $stmt->bindValue(':subject_id', $exam->getSubject()->getId());
-        $stmt->bindValue(':exam_date', $exam->getExamDate()->format('Y-m-d'));
+        $stmt->bindValue(':subject_id', $exam->getSubjectId());
         $stmt->bindValue(':description', $exam->getDescription());
+        $stmt->bindValue(':exam_date', $exam->getExamDate()->format('Y-m-d'));
         $stmt->execute();
     }
 
@@ -62,6 +59,26 @@ class ExamRepository implements IExamRepository
         return array_map([$this, 'mapToExam'], $exams);
     }
 
+    public function findByDescription(string $description): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM exams WHERE description LIKE :description");
+        $stmt->bindValue(':description', "%$description%");
+        $stmt->execute();
+
+        $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToExam'], $exams);
+    }
+
+    public function findByExamDate(\DateTime $examDate): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM exams WHERE exam_date = :exam_date");
+        $stmt->bindValue(':exam_date', $examDate->format('Y-m-d'));
+        $stmt->execute();
+
+        $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToExam'], $exams);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM exams WHERE id = :id");
@@ -78,18 +95,12 @@ class ExamRepository implements IExamRepository
 
     private function mapToExam(array $data): Exam
     {
-        $subject = $this->subjectRepo->findById($data['subject_id']);
-
-        if (!$subject) {
-            throw new \Exception("Subject not found for subject_id: " . $data['subject_id']);
-        }
-
         $exam = new Exam(
-            $subject,
+            (int) $data['subject_id'],
             new \DateTime($data['exam_date']),
             $data['description']
         );
-        $exam->setId($data['id']);
+        $exam->setId((int) $data['id']);
 
         return $exam;
     }

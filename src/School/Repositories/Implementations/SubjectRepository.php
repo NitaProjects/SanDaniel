@@ -4,18 +4,15 @@ namespace App\School\Repositories\Implementations;
 
 use App\School\Entities\Subject;
 use App\School\Repositories\Interfaces\ISubjectRepository;
-use App\School\Repositories\Implementations\CourseRepository;
 use PDO;
 
 class SubjectRepository implements ISubjectRepository
 {
     private PDO $db;
-    private CourseRepository $courseRepo;
 
-    public function __construct(PDO $db, CourseRepository $courseRepo)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
-        $this->courseRepo = $courseRepo;
     }
 
     public function save(Subject $subject): void
@@ -36,7 +33,7 @@ class SubjectRepository implements ISubjectRepository
         }
 
         $stmt->bindValue(':name', $subject->getName());
-        $stmt->bindValue(':course_id', $subject->getCourse() ? $subject->getCourse()->getId() : null);
+        $stmt->bindValue(':course_id', $subject->getCourseId());
         $stmt->execute();
     }
 
@@ -60,6 +57,16 @@ class SubjectRepository implements ISubjectRepository
         return array_map([$this, 'mapToSubject'], $subjects);
     }
 
+    public function findByName(string $name): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM subjects WHERE name LIKE :name");
+        $stmt->bindValue(':name', "%$name%");
+        $stmt->execute();
+
+        $subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToSubject'], $subjects);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM subjects WHERE id = :id");
@@ -75,17 +82,11 @@ class SubjectRepository implements ISubjectRepository
     }
 
     private function mapToSubject(array $data): Subject
-    {
-        $subject = new Subject($data['name']);
-        $subject->setId($data['id']);
+{
+    $subject = new Subject($data['name'], $data['course_id']); 
+    $subject->setId($data['id']); 
 
-        if (!empty($data['course_id'])) {
-            $course = $this->courseRepo->findById($data['course_id']);
-            if ($course) {
-                $subject->setCourse($course);
-            }
-        }
+    return $subject;
+}
 
-        return $subject;
-    }
 }

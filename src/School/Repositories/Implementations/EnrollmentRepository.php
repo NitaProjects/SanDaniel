@@ -4,39 +4,19 @@ namespace App\School\Repositories\Implementations;
 
 use App\School\Entities\Enrollment;
 use App\School\Repositories\Interfaces\IEnrollmentRepository;
-use App\School\Repositories\Implementations\StudentRepository;
-use App\School\Repositories\Implementations\SubjectRepository;
 use PDO;
 
 class EnrollmentRepository implements IEnrollmentRepository
 {
     private PDO $db;
-    private StudentRepository $studentRepo;
-    private SubjectRepository $subjectRepo;
 
-    public function __construct(PDO $db, StudentRepository $studentRepo, SubjectRepository $subjectRepo)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
-        $this->studentRepo = $studentRepo;
-        $this->subjectRepo = $subjectRepo;
     }
 
     public function save(Enrollment $enrollment): void
     {
-        // Validar si ya existe la inscripción para evitar duplicados
-        $stmt = $this->db->prepare("
-            SELECT COUNT(*) as count FROM enrollments 
-            WHERE student_id = :student_id AND subject_id = :subject_id
-        ");
-        $stmt->bindValue(':student_id', $enrollment->getStudent()->getId());
-        $stmt->bindValue(':subject_id', $enrollment->getSubject()->getId());
-        $stmt->execute();
-        $exists = $stmt->fetch(PDO::FETCH_ASSOC)['count'] > 0;
-
-        if ($exists) {
-            throw new \Exception("El estudiante ya está inscrito en esta asignatura.");
-        }
-
         if ($enrollment->getId()) {
             $stmt = $this->db->prepare("
                 UPDATE enrollments SET 
@@ -53,8 +33,8 @@ class EnrollmentRepository implements IEnrollmentRepository
             ");
         }
 
-        $stmt->bindValue(':student_id', $enrollment->getStudent()->getId());
-        $stmt->bindValue(':subject_id', $enrollment->getSubject()->getId());
+        $stmt->bindValue(':student_id', $enrollment->getStudentId());
+        $stmt->bindValue(':subject_id', $enrollment->getSubjectId());
         $stmt->bindValue(':enrollment_date', $enrollment->getEnrollmentDate()->format('Y-m-d'));
         $stmt->execute();
     }
@@ -89,6 +69,16 @@ class EnrollmentRepository implements IEnrollmentRepository
         return array_map([$this, 'mapToEnrollment'], $enrollments);
     }
 
+    public function findByEnrollmentDate(\DateTime $enrollmentDate): array
+    {
+        $stmt = $this->db->prepare("SELECT * FROM enrollments WHERE enrollment_date = :enrollment_date");
+        $stmt->bindValue(':enrollment_date', $enrollmentDate->format('Y-m-d'));
+        $stmt->execute();
+
+        $enrollments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_map([$this, 'mapToEnrollment'], $enrollments);
+    }
+
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM enrollments WHERE id = :id");
@@ -105,15 +95,12 @@ class EnrollmentRepository implements IEnrollmentRepository
 
     private function mapToEnrollment(array $data): Enrollment
     {
-        $student = $this->studentRepo->findById($data['student_id']);
-        $subject = $this->subjectRepo->findById($data['subject_id']);
-
-        if (!$student || !$subject) {
-            throw new \Exception("Datos inválidos: Estudiante o asignatura no encontrados.");
-        }
-
-        $enrollment = new Enrollment($student, $subject, new \DateTime($data['enrollment_date']));
-        $enrollment->setId($data['id']);
+        $enrollment = new Enrollment(
+            (int) $data['student_id'],
+            (int) $data['subject_id'],
+            new \DateTime($data['enrollment_date'])
+        );
+        $enrollment->setId((int) $data['id']);
 
         return $enrollment;
     }

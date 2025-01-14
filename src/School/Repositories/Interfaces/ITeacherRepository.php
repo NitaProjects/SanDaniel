@@ -11,4 +11,4 @@ interface ITeacherRepository
     public function findByUserId(int $userId): ?Teacher; // Encuentra un profesor por el ID de usuario.
     public function delete(int $id): void; // Elimina un profesor por su ID.
     public function getAll(): array; // Devuelve todos los profesores.
-}
+} 

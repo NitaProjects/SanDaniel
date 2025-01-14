@@ -2,20 +2,20 @@
 
 namespace App\School\Entities;
 
-use App\School\Entities\Subject;
+use DateTime;
 
 class Exam
 {
     private int $id;
-    private Subject $subject;
-    private \DateTime $examDate;
-    private float $maxGrade;
+    private int $subjectId; 
+    private DateTime $examDate;
+    private string $description; 
 
-    public function __construct(Subject $subject, \DateTime $examDate, float $maxGrade)
+    public function __construct(int $subjectId, DateTime $examDate, string $description)
     {
-        $this->subject = $subject;
-        $this->examDate = $examDate;
-        $this->maxGrade = $maxGrade;
+        $this->setSubjectId($subjectId);
+        $this->setExamDate($examDate);
+        $this->setDescription($description);
     }
 
     public function getId(): int
@@ -25,40 +25,52 @@ class Exam
 
     public function setId(int $id): self
     {
+        if ($id <= 0) {
+            throw new \InvalidArgumentException("ID must be a positive integer.");
+        }
         $this->id = $id;
         return $this;
     }
 
-    public function getSubject(): Subject
+    public function getSubjectId(): int
     {
-        return $this->subject;
+        return $this->subjectId;
     }
 
-    public function setSubject(Subject $subject): self
+    public function setSubjectId(int $subjectId): self
     {
-        $this->subject = $subject;
+        if ($subjectId <= 0) {
+            throw new \InvalidArgumentException("Subject ID must be a positive integer.");
+        }
+        $this->subjectId = $subjectId;
         return $this;
     }
 
-    public function getExamDate(): \DateTime
+    public function getExamDate(): DateTime
     {
         return $this->examDate;
     }
 
-    public function setExamDate(\DateTime $examDate): self
+    public function setExamDate(DateTime $examDate): self
     {
         $this->examDate = $examDate;
         return $this;
     }
 
-    public function getMaxGrade(): float
+    public function getDescription(): string
     {
-        return $this->maxGrade;
+        return $this->description;
     }
 
-    public function setMaxGrade(float $maxGrade): self
+    public function setDescription(string $description): self
     {
-        $this->maxGrade = $maxGrade;
+        if (empty($description)) {
+            throw new \InvalidArgumentException("Description cannot be empty.");
+        }
+        if (strlen($description) > 255) {
+            throw new \InvalidArgumentException("Description cannot exceed 255 characters.");
+        }
+        $this->description = $description;
         return $this;
     }
 }
