@@ -15,6 +15,7 @@ class Router {
         $this->routes[$method][$path] = $action; // Guarda la acción en el array de rutas.
         return $this; // Permite encadenar múltiples llamadas a addRoute.
     }
+    
 
     /*
      * dispatch: Procesa la solicitud y ejecuta la acción correspondiente.
@@ -26,7 +27,7 @@ class Router {
     
         // Verificar rutas estáticas
         if (isset($this->routes[$method][$path])) {
-            $this->executeAction($this->routes[$method][$path]);
+            $this->executeAction($this->routes[$method][$path], [$request]);
             die; // Detiene el flujo después de ejecutar la acción
         }
     
@@ -35,7 +36,7 @@ class Router {
             $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([a-zA-Z0-9_]+)', $route);
             if (preg_match("#^$pattern$#", $path, $matches)) {
                 array_shift($matches); // Quitar el path completo
-                $this->executeAction($action, $matches);
+                $this->executeAction($action, array_merge([$request], $matches));
                 return; // Detiene el flujo después de ejecutar la acción
             }
         }
@@ -45,6 +46,7 @@ class Router {
         echo "Route not found";
         die; // Detiene el flujo si no se encuentra la ruta
     }
+    
     
     
     

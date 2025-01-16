@@ -34,6 +34,7 @@
     </main>
 
     <script src="../../scripts/management.js"></script>
+    <script src="../../scripts/users.js"></script>
 </body>
 
 </html>

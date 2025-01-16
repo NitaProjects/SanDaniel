@@ -97,3 +97,73 @@ button:hover {
     background-color: #0056a3;
 }
 
+/* Forms styles */
+#user-form, #edit-user-form {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    margin: 20px 0;
+}
+
+#user-form form, #edit-user-form form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#user-form input, #edit-user-form input, 
+#user-form select, #edit-user-form select {
+    margin: 10px 10px 10px 0;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    flex: 1 1 calc(20% - 10px); /* Ajusta el ancho en relación al espacio disponible */
+    min-width: 150px;
+}
+
+#user-form button, #edit-user-form button {
+    margin: 10px 10px 10px 0;
+    padding: 10px 15px;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+#user-form button[type="submit"], 
+#edit-user-form button[type="submit"] {
+    background-color: #0078d7;
+    color: white;
+}
+
+#user-form button[type="submit"]:hover, 
+#edit-user-form button[type="submit"]:hover {
+    background-color: #0056a3;
+}
+
+#user-form button[type="button"], 
+#edit-user-form button[type="button"] {
+    background-color: #f4f4f9;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+#user-form button[type="button"]:hover, 
+#edit-user-form button[type="button"]:hover {
+    background-color: #e2e2e2;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #user-form input, #edit-user-form input, 
+    #user-form select, #edit-user-form select {
+        flex: 1 1 100%; /* Los campos ocupan toda la línea en pantallas pequeñas */
+    }
+}

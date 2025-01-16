@@ -36,12 +36,24 @@ class UserController {
 
     public function getUserById(Request $request): void {
         try {
-            $id = (int) $request->getQueryParams()['id'];
+            $id = (int) ($_GET['id'] ?? 0); // Accede directamente al parámetro de la query
+            if (!$id) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Missing or invalid ID']);
+                return;
+            }
+    
             $user = $this->userService->getUserById($id);
-
+    
             if ($user) {
                 http_response_code(200);
-                echo json_encode($user);
+                echo json_encode([
+                    'id' => $user->getId(),
+                    'first_name' => $user->getFirstName(),
+                    'last_name' => $user->getLastName(),
+                    'email' => $user->getEmail(),
+                    'user_type' => $user->getUserType(),
+                ]);
             } else {
                 http_response_code(404);
                 echo json_encode(['error' => 'User not found']);
@@ -51,6 +63,7 @@ class UserController {
             echo json_encode(['error' => 'Internal Server Error']);
         }
     }
+    
 
     public function deleteUser(Request $request): void {
         try {
@@ -67,14 +80,23 @@ class UserController {
     public function getAllUsers(): void {
         try {
             $users = $this->userService->getAllUsers();
-
+            // Convertimos cada usuario a un array para evitar problemas con json_encode
+            $usersArray = array_map(fn($user) => [
+                'id' => $user->getId(),
+                'first_name' => $user->getFirstName(),
+                'last_name' => $user->getLastName(),
+                'email' => $user->getEmail(),
+                'user_type' => $user->getUserType(),
+            ], $users);
+    
             http_response_code(200);
-            echo json_encode($users);
+            echo json_encode($usersArray);
         } catch (\Exception $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error']);
         }
     }
+    
 
     public function searchUsers(Request $request): void {
         try {

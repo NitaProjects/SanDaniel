@@ -4,7 +4,7 @@ namespace App\School\Entities;
 
 class User
 {
-    private int $id;
+    private ?int $id = null;
     private string $firstName;
     private string $lastName;
     private string $email;
@@ -26,11 +26,10 @@ class User
     }
 
     // Getters and Setters
-    public function getId(): int
-    {
-        return $this->id;
+    public function getId(): ?int {
+        return $this->id; 
     }
-
+    
     public function setId(int $id): self
     {
         $this->id = $id;

@@ -7,12 +7,27 @@
         <input type="email" id="email" placeholder="Correo Electrónico" required />
         <input type="password" id="password" placeholder="Contraseña" required />
         <select id="user-type">
-            <option value="admin">Admin</option>
             <option value="teacher">Profesor</option>
             <option value="student">Estudiante</option>
         </select>
         <button type="submit">Guardar</button>
         <button type="button" onclick="closeAddUserForm()">Cancelar</button>
+    </form>
+</div>
+<div id="edit-user-form" style="display: none;">
+    <form id="edit-user-data-form">
+        <input type="hidden" id="edit-user-id" />
+        <input type="text" id="edit-first-name" placeholder="Nombre" required />
+        <input type="text" id="edit-last-name" placeholder="Apellido" required />
+        <input type="email" id="edit-email" placeholder="Correo Electrónico" required />
+        <input type="password" id="edit-password" placeholder="Contraseña" />
+        <select id="edit-user-type">
+            <option value="admin">Admin</option>
+            <option value="teacher">Profesor</option>
+            <option value="student">Estudiante</option>
+        </select>
+        <button type="submit">Guardar Cambios</button>
+        <button type="button" onclick="closeEditUserForm()">Cancelar</button>
     </form>
 </div>
 <table>
@@ -26,10 +41,5 @@
         </tr>
     </thead>
     <tbody id="user-table-body">
-        
     </tbody>
 </table>
-
-
-<script src="../../scripts/users.js"></script>
-

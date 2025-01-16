@@ -15,9 +15,8 @@ class UserRepository implements IUserRepository
         $this->db = $db;
     }
 
-    public function save(User $user): void
-    {
-        if ($user->getId()) {
+    public function save(User $user): void {
+        if ($user->getId() !== null) { // Verifica si el ID no es nulo
             $stmt = $this->db->prepare("
                 UPDATE users SET 
                     first_name = :first_name,
@@ -34,14 +33,20 @@ class UserRepository implements IUserRepository
                 VALUES (:first_name, :last_name, :email, :password, :user_type)
             ");
         }
-
+    
         $stmt->bindValue(':first_name', $user->getFirstName());
         $stmt->bindValue(':last_name', $user->getLastName());
         $stmt->bindValue(':email', $user->getEmail());
         $stmt->bindValue(':password', $user->getPassword());
         $stmt->bindValue(':user_type', $user->getUserType());
         $stmt->execute();
+    
+        // Si se inserta, configura el ID generado automáticamente
+        if ($user->getId() === null) {
+            $user->setId((int)$this->db->lastInsertId());
+        }
     }
+    
 
     public function findById(int $id): ?User
     {

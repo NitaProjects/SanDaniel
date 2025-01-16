@@ -15,19 +15,19 @@ class UserService
     }
 
     public function createUser(string $firstName, string $lastName, string $email, string $password, string $userType): User
-{
-    if (empty($firstName) || empty($lastName)) {
-        throw new \InvalidArgumentException("First name and last name are required");
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        throw new \InvalidArgumentException("Invalid email format");
-    }
+    {
+        if (empty($firstName) || empty($lastName)) {
+            throw new \InvalidArgumentException("First name and last name are required");
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new \InvalidArgumentException("Invalid email format");
+        }
 
-    $user = new User($firstName, $lastName, $email, $password, $userType);
-    $this->userRepository->save($user);
+        $user = new User($firstName, $lastName, $email, $password, $userType);
+        $this->userRepository->save($user);
 
-    return $user;
-}
+        return $user;
+    }
 
 
     public function getUserById(int $id): ?User
@@ -44,10 +44,10 @@ class UserService
         }
 
         $user->setFirstName($firstName)
-             ->setLastName($lastName)
-             ->setEmail($email)
-             ->setPassword($password)
-             ->setUserType($userType);
+            ->setLastName($lastName)
+            ->setEmail($email)
+            ->setPassword($password)
+            ->setUserType($userType);
 
         $this->userRepository->save($user);
     }
