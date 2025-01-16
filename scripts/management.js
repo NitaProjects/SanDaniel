@@ -12,9 +12,37 @@ function loadContent(entity) {
         .then(html => {
             contentContainer.innerHTML = html;
 
-            // Inicializa scripts dinámicos
-            if (entity === 'users') {
-                initUsersPage(); 
+            // Inicializa scripts dinámicos según la entidad
+            switch (entity) {
+                case 'users':
+                    initUsersPage();
+                    break;
+                case 'students':
+                    initStudentsPage();
+                    break;
+                case 'teachers':
+                    initTeachersPage();
+                    break;
+                case 'subjects':
+                    initSubjectsPage();
+                    break;
+                case 'courses':
+                    initCoursesPage();
+                    break;
+                case 'departments':
+                    initDepartmentsPage();
+                    break;
+                case 'degrees':
+                    initDegreesPage();
+                    break;
+                case 'enrollments':
+                    initEnrollmentsPage();
+                    break;
+                case 'exams':
+                    initExamsPage();
+                    break;
+                default:
+                    console.warn(`Entidad desconocida: ${entity}`);
             }
         })
         .catch(error => {

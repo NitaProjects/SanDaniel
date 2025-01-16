@@ -4,54 +4,18 @@
  * Configuración inicial y carga de servicios
  */
 
-ini_set('display_errors', 'On'); 
-define('VIEWS', __DIR__ . '/src/views'); 
+// Configuración de errores y constantes globales
+ini_set('display_errors', 'On');
+define('VIEWS', __DIR__ . '/src/views');
 
-require __DIR__ . '/vendor/autoload.php'; 
+// Autoload de dependencias
+require __DIR__ . '/vendor/autoload.php';
 
+// Dependencias principales
 use App\Database\Database;
 use App\Infrastructure\Routing\Router;
 use App\Infrastructure\Routing\Request;
 use App\Controllers\HomeController;
-
-
-use App\School\Repositories\Implementations\UserRepository;
-use App\School\Services\UserService;
-use App\Controllers\UserController;
-
-use App\School\Repositories\Implementations\TeacherRepository;
-use App\School\Services\TeacherService;
-use App\Controllers\TeacherController;
-
-use App\School\Repositories\Implementations\SubjectRepository;
-use App\School\Services\SubjectService;
-use App\Controllers\SubjectController;
-
-use App\School\Repositories\Implementations\StudentRepository;
-use App\School\Services\StudentService;
-use App\Controllers\StudentController;
-
-use App\School\Repositories\Implementations\ExamRepository;
-use App\School\Services\ExamService;
-use App\Controllers\ExamController;
-
-use App\School\Repositories\Implementations\CourseRepository;
-use App\School\Services\CourseService;
-use App\Controllers\CourseController;
-
-use App\School\Repositories\Implementations\DegreeRepository;
-use App\School\Services\DegreeService;
-use App\Controllers\DegreeController;
-
-use App\School\Repositories\Implementations\DepartmentRepository;
-use App\School\Services\DepartmentService;
-use App\Controllers\DepartmentController;
-
-use App\School\Repositories\Implementations\EnrollmentRepository;
-use App\School\Services\EnrollmentService;
-use App\Controllers\EnrollmentController;
-
-
 
 // Conexión a la base de datos
 $database = new Database();
@@ -60,112 +24,163 @@ $connection = $database->getConnection();
 // Configuración del enrutador
 $router = new Router();
 
+// =====================
+// 1. Rutas de Inicio
+// =====================
 $homeController = new HomeController();
 $router->addRoute('GET', '/', [$homeController, 'index']);
 $router->addRoute('GET', '/management', [$homeController, 'management']);
 
+// =====================
+// 2. Rutas de Usuarios
+// =====================
+use App\School\Repositories\Implementations\UserRepository;
+use App\School\Services\UserService;
+use App\Controllers\UserController;
 
-// Instancia de repositorio, servicio y controlador para usuarios
 $userRepository = new UserRepository($connection);
 $userService = new UserService($userRepository);
 $userController = new UserController($userService);
 
-// Instancia de repositorio, servicio y controlador para profesores
+$router->addRoute('POST', '/users', [$userController, 'createUser']);
+$router->addRoute('GET', '/users', [$userController, 'getAllUsers']);
+$router->addRoute('GET', '/users/search', [$userController, 'searchUsers']);
+$router->addRoute('GET', '/users/{id}', [$userController, 'getUserById']);
+$router->addRoute('DELETE', '/users/{id}', [$userController, 'deleteUser']);
+
+// =====================
+// 3. Rutas de Profesores
+// =====================
+use App\School\Repositories\Implementations\TeacherRepository;
+use App\School\Services\TeacherService;
+use App\Controllers\TeacherController;
+
 $teacherRepository = new TeacherRepository($connection);
 $teacherService = new TeacherService($teacherRepository);
 $teacherController = new TeacherController($teacherService);
 
-// Instancia de repositorio, servicio y controlador para estudiantes
+$router->addRoute('POST', '/teachers', [$teacherController, 'createTeacher']);
+$router->addRoute('GET', '/teachers', [$teacherController, 'getAllTeachers']);
+$router->addRoute('GET', '/teachers/{id}', [$teacherController, 'getTeacherById']);
+$router->addRoute('GET', '/teachers/user/{user_id}', [$teacherController, 'getTeacherByUserId']);
+$router->addRoute('DELETE', '/teachers/{id}', [$teacherController, 'deleteTeacher']);
+
+// =====================
+// 4. Rutas de Estudiantes
+// =====================
+use App\School\Repositories\Implementations\StudentRepository;
+use App\School\Services\StudentService;
+use App\Controllers\StudentController;
+
 $studentRepository = new StudentRepository($connection);
 $studentService = new StudentService($studentRepository);
 $studentController = new StudentController($studentService);
 
-// Instancia de repositorio, servicio y controlador para asignaturas
+$router->addRoute('POST', '/students', [$studentController, 'createStudent']);
+$router->addRoute('GET', '/students', [$studentController, 'getAllStudents']);
+$router->addRoute('GET', '/students/{id}', [$studentController, 'getStudentById']);
+$router->addRoute('DELETE', '/students/{id}', [$studentController, 'deleteStudent']);
+
+// =====================
+// 5. Rutas de Asignaturas
+// =====================
+use App\School\Repositories\Implementations\SubjectRepository;
+use App\School\Services\SubjectService;
+use App\Controllers\SubjectController;
+
 $subjectRepository = new SubjectRepository($connection);
 $subjectService = new SubjectService($subjectRepository);
 $subjectController = new SubjectController($subjectService);
 
-// Instancia de repositorio, servicio y controlador para cursos
+$router->addRoute('POST', '/subjects', [$subjectController, 'createSubject']);
+$router->addRoute('GET', '/subjects', [$subjectController, 'getAllSubjects']);
+$router->addRoute('GET', '/subjects/{id}', [$subjectController, 'getSubjectById']);
+$router->addRoute('DELETE', '/subjects/{id}', [$subjectController, 'deleteSubject']);
+
+// =====================
+// 6. Rutas de Cursos
+// =====================
+use App\School\Repositories\Implementations\CourseRepository;
+use App\School\Services\CourseService;
+use App\Controllers\CourseController;
+
 $courseRepository = new CourseRepository($connection);
 $courseService = new CourseService($courseRepository);
 $courseController = new CourseController($courseService);
 
-// Instancia de repositorio, servicio y controlador para titulaciones
+$router->addRoute('POST', '/courses', [$courseController, 'createCourse']);
+$router->addRoute('GET', '/courses', [$courseController, 'getAllCourses']);
+$router->addRoute('GET', '/courses/{id}', [$courseController, 'getCourseById']);
+$router->addRoute('DELETE', '/courses/{id}', [$courseController, 'deleteCourse']);
+
+// =====================
+// 7. Rutas de Titulaciones
+// =====================
+use App\School\Repositories\Implementations\DegreeRepository;
+use App\School\Services\DegreeService;
+use App\Controllers\DegreeController;
+
 $degreeRepository = new DegreeRepository($connection);
 $degreeService = new DegreeService($degreeRepository);
 $degreeController = new DegreeController($degreeService);
 
-// Instancia de repositorio, servicio y controlador para departamentos
+$router->addRoute('POST', '/degrees', [$degreeController, 'createDegree']);
+$router->addRoute('GET', '/degrees', [$degreeController, 'getAllDegrees']);
+$router->addRoute('GET', '/degrees/{id}', [$degreeController, 'getDegreeById']);
+$router->addRoute('DELETE', '/degrees/{id}', [$degreeController, 'deleteDegree']);
+
+// =====================
+// 8. Rutas de Departamentos
+// =====================
+use App\School\Repositories\Implementations\DepartmentRepository;
+use App\School\Services\DepartmentService;
+use App\Controllers\DepartmentController;
+
 $departmentRepository = new DepartmentRepository($connection);
 $departmentService = new DepartmentService($departmentRepository);
 $departmentController = new DepartmentController($departmentService);
 
-// Instancia de repositorio, servicio y controlador para exámenes
+$router->addRoute('POST', '/departments', [$departmentController, 'createDepartment']);
+$router->addRoute('GET', '/departments', [$departmentController, 'getAllDepartments']);
+$router->addRoute('GET', '/departments/{id}', [$departmentController, 'getDepartmentById']);
+$router->addRoute('DELETE', '/departments/{id}', [$departmentController, 'deleteDepartment']);
+
+// =====================
+// 9. Rutas de Exámenes
+// =====================
+use App\School\Repositories\Implementations\ExamRepository;
+use App\School\Services\ExamService;
+use App\Controllers\ExamController;
+
 $examRepository = new ExamRepository($connection);
 $examService = new ExamService($examRepository);
 $examController = new ExamController($examService);
 
-// Instancia de repositorio, servicio y controlador para matrículas
+$router->addRoute('POST', '/exams', [$examController, 'createExam']);
+$router->addRoute('GET', '/exams', [$examController, 'getAllExams']);
+$router->addRoute('GET', '/exams/{id}', [$examController, 'getExamById']);
+$router->addRoute('PUT', '/exams/{id}', [$examController, 'updateExam']);
+$router->addRoute('DELETE', '/exams/{id}', [$examController, 'deleteExam']);
+
+// =====================
+// 10. Rutas de Matrículas
+// =====================
+use App\School\Repositories\Implementations\EnrollmentRepository;
+use App\School\Services\EnrollmentService;
+use App\Controllers\EnrollmentController;
+
 $enrollmentRepository = new EnrollmentRepository($connection);
 $enrollmentService = new EnrollmentService($enrollmentRepository);
 $enrollmentController = new EnrollmentController($enrollmentService);
 
+$router->addRoute('POST', '/enrollments', [$enrollmentController, 'createEnrollment']);
+$router->addRoute('GET', '/enrollments', [$enrollmentController, 'getAllEnrollments']);
+$router->addRoute('GET', '/enrollments/{id}', [$enrollmentController, 'getEnrollmentById']);
+$router->addRoute('PUT', '/enrollments/{id}', [$enrollmentController, 'updateEnrollment']);
+$router->addRoute('DELETE', '/enrollments/{id}', [$enrollmentController, 'deleteEnrollment']);
 
-// Añadir rutas del controlador de usuarios
-$router->addRoute('POST', '/users', [new UserController($userService), 'createUser']);
-$router->addRoute('GET', '/users', [new UserController($userService), 'getAllUsers']);
-$router->addRoute('GET', '/users/search', [new UserController($userService), 'searchUsers']);
-$router->addRoute('GET', '/users/{id}', [new UserController($userService), 'getUserById']);
-$router->addRoute('DELETE', '/users/{id}', [new UserController($userService), 'deleteUser']);
-
-$router->addRoute('POST', '/teachers', [new TeacherController($teacherService), 'createTeacher']);
-$router->addRoute('GET', '/teachers', [new TeacherController($teacherService), 'getAllTeachers']);
-$router->addRoute('GET', '/teachers/{id}', [new TeacherController($teacherService), 'getTeacherById']);
-$router->addRoute('GET', '/teachers/user/{user_id}', [new TeacherController($teacherService), 'getTeacherByUserId']);
-$router->addRoute('DELETE', '/teachers/{id}', [new TeacherController($teacherService), 'deleteTeacher']);
-
-$router->addRoute('POST', '/subjects', [new SubjectController($subjectService), 'createSubject']);
-$router->addRoute('GET', '/subjects', [new SubjectController($subjectService), 'getAllSubjects']);
-$router->addRoute('GET', '/subjects/{id}', [new SubjectController($subjectService), 'getSubjectById']);
-$router->addRoute('DELETE', '/subjects/{id}', [new SubjectController($subjectService), 'deleteSubject']);
-
-$router->addRoute('POST', '/students', [new StudentController($studentService), 'createStudent']);
-$router->addRoute('GET', '/students', [new StudentController($studentService), 'getAllStudents']);
-$router->addRoute('GET', '/students/{id}', [new StudentController($studentService), 'getStudentById']);
-$router->addRoute('DELETE', '/students/{id}', [new StudentController($studentService), 'deleteStudent']);
-
-$router->addRoute('POST', '/exams', [new ExamController($examService), 'createExam']);
-$router->addRoute('GET', '/exams', [new ExamController($examService), 'getAllExams']);
-$router->addRoute('GET', '/exams/{id}', [new ExamController($examService), 'getExamById']);
-$router->addRoute('PUT', '/exams/{id}', [new ExamController($examService), 'updateExam']);
-$router->addRoute('DELETE', '/exams/{id}', [new ExamController($examService), 'deleteExam']);
-
-$router->addRoute('POST', '/enrollments', [new EnrollmentController($enrollmentService), 'createEnrollment']);
-$router->addRoute('GET', '/enrollments', [new EnrollmentController($enrollmentService), 'getAllEnrollments']);
-$router->addRoute('GET', '/enrollments/{id}', [new EnrollmentController($enrollmentService), 'getEnrollmentById']);
-$router->addRoute('PUT', '/enrollments/{id}', [new EnrollmentController($enrollmentService), 'updateEnrollment']);
-$router->addRoute('DELETE', '/enrollments/{id}', [new EnrollmentController($enrollmentService), 'deleteEnrollment']);
-
-$router->addRoute('POST', '/departments', [new DepartmentController($departmentService), 'createDepartment']);
-$router->addRoute('GET', '/departments', [new DepartmentController($departmentService), 'getAllDepartments']);
-$router->addRoute('GET', '/departments/{id}', [new DepartmentController($departmentService), 'getDepartmentById']);
-$router->addRoute('DELETE', '/departments/{id}', [new DepartmentController($departmentService), 'deleteDepartment']);
-
-$router->addRoute('POST', '/degrees', [new DegreeController($degreeService), 'createDegree']);
-$router->addRoute('GET', '/degrees', [new DegreeController($degreeService), 'getAllDegrees']);
-$router->addRoute('GET', '/degrees/{id}', [new DegreeController($degreeService), 'getDegreeById']);
-$router->addRoute('DELETE', '/degrees/{id}', [new DegreeController($degreeService), 'deleteDegree']);
-
-$router->addRoute('POST', '/courses', [new CourseController($courseService), 'createCourse']);
-$router->addRoute('GET', '/courses', [new CourseController($courseService), 'getAllCourses']);
-$router->addRoute('GET', '/courses/{id}', [new CourseController($courseService), 'getCourseById']);
-$router->addRoute('DELETE', '/courses/{id}', [new CourseController($courseService), 'deleteCourse']);
-
-
-
-
-
-
+// =====================
 // Procesar la solicitud HTTP
+// =====================
 $request = new Request();
 $router->dispatch($request);

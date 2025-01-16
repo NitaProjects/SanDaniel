@@ -1,7 +1,5 @@
 // Función de inicialización específica para la página de usuarios
 function initUsersPage() {
-
-    // Busca el formulario y agrega el evento de envío
     const form = document.getElementById("add-user-form");
     if (form) {
         form.addEventListener("submit", (event) => {
@@ -11,8 +9,6 @@ function initUsersPage() {
     } else {
         console.warn("El formulario de agregar usuario no está disponible.");
     }
-
-    // Cargar usuarios en la tabla
     loadUsers();
 }
 
@@ -25,17 +21,11 @@ async function loadUsers() {
             return;
         }
 
-        const response = await fetch("/users");
-        if (!response.ok) {
-            throw new Error("Error al cargar los usuarios");
-        }
+        const response = await axios.get("/users");
 
-        // Log de la respuesta JSON
-        const users = await response.json();
+        tableBody.innerHTML = "";
 
-        tableBody.innerHTML = ""; 
-
-        users.forEach((user) => {
+        response.data.forEach((user) => {
             const row = `
                 <tr>
                     <td>${user.id}</td>
@@ -55,7 +45,6 @@ async function loadUsers() {
     }
 }
 
-
 // Función para agregar un usuario
 async function addUser() {
     const firstName = document.getElementById("first-name").value;
@@ -65,58 +54,46 @@ async function addUser() {
     const userType = document.getElementById("user-type").value;
 
     try {
-        const response = await fetch("/users", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password, user_type: userType }),
+        await axios.post("/users", {
+            first_name: firstName,
+            last_name: lastName,
+            email: email,
+            password: password,
+            user_type: userType,
         });
-
-        if (!response.ok) {
-            throw new Error("Error al añadir usuario");
-        }
 
         console.log("Usuario añadido correctamente");
         closeAddUserForm();
-        loadUsers(); // Recarga los usuarios tras añadir uno nuevo
+        loadUsers();
     } catch (error) {
         console.error("Error al añadir usuario:", error);
     }
 }
 
-// Función para editar un usuario (placeholder)
+// Función para editar un usuario
 function editUser(id) {
-    // Obtén los datos del usuario desde el servidor
-    fetch(`/users/${id}`)
-        .then(response => {
-            if (!response.ok) throw new Error("Error al obtener los datos del usuario");
-            return response.json();
-        })
-        .then(user => {
-            // Rellenar el formulario con los datos del usuario
+    axios.get(`/users/${id}`)
+        .then((response) => {
+            const user = response.data;
+
             document.getElementById("edit-user-id").value = user.id;
             document.getElementById("edit-first-name").value = user.first_name;
             document.getElementById("edit-last-name").value = user.last_name;
             document.getElementById("edit-email").value = user.email;
-            document.getElementById("edit-password").value = ""; 
+            document.getElementById("edit-password").value = "";
             document.getElementById("edit-user-type").value = user.user_type;
 
-            // Mostrar el formulario
             document.getElementById("edit-user-form").style.display = "block";
         })
-        .catch(error => console.error("Error al cargar los datos del usuario:", error));
+        .catch((error) => console.error("Error al cargar los datos del usuario:", error));
 }
-
 
 // Función para eliminar un usuario
 async function deleteUser(id) {
     try {
-        const response = await fetch(`/users/${id}`, { method: "DELETE" });
-        if (!response.ok) {
-            throw new Error("Error al eliminar usuario");
-        }
-
+        await axios.delete(`/users/${id}`);
         console.log("Usuario eliminado correctamente");
-        loadUsers(); // Recarga los usuarios tras eliminar uno
+        loadUsers();
     } catch (error) {
         console.error("Error al eliminar usuario:", error);
     }
@@ -141,4 +118,3 @@ function closeAddUserForm() {
         console.warn("El formulario de agregar usuario no está disponible.");
     }
 }
-
