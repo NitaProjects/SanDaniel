@@ -1,4 +1,4 @@
-// Función de inicialización específica para la página de usuarios
+// Función de inicialización para la página de usuarios
 function initUsersPage() {
     const form = document.getElementById("add-user-form");
     if (form) {
@@ -6,8 +6,6 @@ function initUsersPage() {
             event.preventDefault();
             addUser();
         });
-    } else {
-        console.warn("El formulario de agregar usuario no está disponible.");
     }
     loadUsers();
 }
@@ -15,17 +13,13 @@ function initUsersPage() {
 // Función para cargar los usuarios y mostrarlos en la tabla
 async function loadUsers() {
     try {
-        const tableBody = document.getElementById("user-table-body");
-        if (!tableBody) {
-            console.warn("El cuerpo de la tabla de usuarios no está disponible.");
-            return;
-        }
-
         const response = await axios.get("/users");
+        const users = response.data;
 
+        const tableBody = document.getElementById("user-table-body");
         tableBody.innerHTML = "";
 
-        response.data.forEach((user) => {
+        users.forEach((user) => {
             const row = `
                 <tr>
                     <td>${user.id}</td>
@@ -33,7 +27,7 @@ async function loadUsers() {
                     <td>${user.email}</td>
                     <td>${user.user_type}</td>
                     <td>
-                        <button onclick="editUser(${user.id})">Editar</button>
+                        <button onclick="updateUser(${user.id})">Editar</button>
                         <button onclick="deleteUser(${user.id})">Eliminar</button>
                     </td>
                 </tr>
@@ -62,7 +56,6 @@ async function addUser() {
             user_type: userType,
         });
 
-        console.log("Usuario añadido correctamente");
         closeAddUserForm();
         loadUsers();
     } catch (error) {
@@ -71,28 +64,55 @@ async function addUser() {
 }
 
 // Función para editar un usuario
-function editUser(id) {
-    axios.get(`/users/${id}`)
-        .then((response) => {
-            const user = response.data;
+async function updateUser(id) {
+    try {
+        // Obtener datos del usuario desde el backend
+        const response = await axios.get(`/users/${id}`);
+        const user = response.data;
 
-            document.getElementById("edit-user-id").value = user.id;
-            document.getElementById("edit-first-name").value = user.first_name;
-            document.getElementById("edit-last-name").value = user.last_name;
-            document.getElementById("edit-email").value = user.email;
-            document.getElementById("edit-password").value = "";
-            document.getElementById("edit-user-type").value = user.user_type;
+        // Asignar valores a los campos del formulario de edición
+        document.getElementById("edit-user-id").value = user.id || "";
+        document.getElementById("edit-first-name").value = user.first_name || "";
+        document.getElementById("edit-last-name").value = user.last_name || "";
+        document.getElementById("edit-email").value = user.email || "";
+        document.getElementById("edit-user-type").value = user.user_type || "";
 
-            document.getElementById("edit-user-form").style.display = "block";
-        })
-        .catch((error) => console.error("Error al cargar los datos del usuario:", error));
+        // Mostrar el formulario de edición
+        document.getElementById("edit-user-form").style.display = "block";
+
+        // Configurar el evento de envío del formulario
+        const form = document.getElementById("edit-user-data-form");
+        form.onsubmit = async (event) => {
+            event.preventDefault();
+
+            try {
+                // Enviar datos actualizados al backend
+                await axios.put(`/users/${id}`, {
+                    first_name: document.getElementById("edit-first-name").value,
+                    last_name: document.getElementById("edit-last-name").value,
+                    email: document.getElementById("edit-email").value,
+                    password: document.getElementById("edit-password").value || "",
+                    user_type: document.getElementById("edit-user-type").value,
+                });
+                
+                closeEditUserForm();
+                loadUsers();
+            } catch (error) {
+                console.error("Error al actualizar usuario:", error);
+            }
+        };
+    } catch (error) {
+        console.error("Error al cargar los datos del usuario:", error);
+    }
 }
+
+
+
 
 // Función para eliminar un usuario
 async function deleteUser(id) {
     try {
         await axios.delete(`/users/${id}`);
-        console.log("Usuario eliminado correctamente");
         loadUsers();
     } catch (error) {
         console.error("Error al eliminar usuario:", error);
@@ -101,20 +121,15 @@ async function deleteUser(id) {
 
 // Función para mostrar el formulario de agregar usuario
 function openAddUserForm() {
-    const form = document.getElementById("user-form");
-    if (form) {
-        form.style.display = "block";
-    } else {
-        console.warn("El formulario de agregar usuario no está disponible.");
-    }
+    document.getElementById("user-form").style.display = "block";
 }
 
 // Función para ocultar el formulario de agregar usuario
 function closeAddUserForm() {
-    const form = document.getElementById("user-form");
-    if (form) {
-        form.style.display = "none";
-    } else {
-        console.warn("El formulario de agregar usuario no está disponible.");
-    }
+    document.getElementById("user-form").style.display = "none";
+}
+
+// Función para ocultar el formulario de edición
+function closeEditUserForm() {
+    document.getElementById("edit-user-form").style.display = "none";
 }

@@ -6,10 +6,9 @@ use App\School\Entities\Subject;
 
 interface ISubjectRepository
 {
-    public function save(Subject $subject): void; // Guarda o actualiza una asignatura.
+    public function add(Subject $subject): void; // Añade una nueva asignatura.
+    public function update(Subject $subject): void; // Actualiza una asignatura existente.
     public function findById(int $id): ?Subject; // Encuentra una asignatura por su ID.
-    public function findByCourseId(int $courseId): array; // Encuentra asignaturas por su curso.
-    public function findByName(string $name): array; // Encuentra asignaturas por nombre.
     public function delete(int $id): void; // Elimina una asignatura por su ID.
     public function getAll(): array; // Devuelve todas las asignaturas.
 }

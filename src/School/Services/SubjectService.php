@@ -14,18 +14,27 @@ class SubjectService
         $this->subjectRepository = $subjectRepository;
     }
 
+    /**
+     * Crea una nueva asignatura.
+     */
     public function createSubject(string $name, int $courseId): Subject
     {
         $subject = new Subject($name, $courseId);
-        $this->subjectRepository->save($subject);
+        $this->subjectRepository->add($subject);
         return $subject;
     }
 
+    /**
+     * Obtiene una asignatura por su ID.
+     */
     public function getSubjectById(int $id): ?Subject
     {
         return $this->subjectRepository->findById($id);
     }
 
+    /**
+     * Actualiza una asignatura existente.
+     */
     public function updateSubject(int $id, string $name, int $courseId): void
     {
         $subject = $this->getSubjectById($id);
@@ -37,27 +46,22 @@ class SubjectService
         $subject->setName($name)
                 ->setCourseId($courseId);
 
-        $this->subjectRepository->save($subject);
+        $this->subjectRepository->update($subject);
     }
 
+    /**
+     * Elimina una asignatura por su ID.
+     */
     public function deleteSubject(int $id): void
     {
         $this->subjectRepository->delete($id);
     }
 
+    /**
+     * Obtiene todas las asignaturas.
+     */
     public function getAllSubjects(): array
     {
         return $this->subjectRepository->getAll();
-    }
-
-    // Búsquedas adicionales
-    public function findSubjectsByCourseId(int $courseId): array
-    {
-        return $this->subjectRepository->findByCourseId($courseId);
-    }
-
-    public function findSubjectsByName(string $name): array
-    {
-        return $this->subjectRepository->findByName($name);
     }
 }

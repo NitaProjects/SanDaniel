@@ -17,7 +17,7 @@ class DepartmentService
     public function createDepartment(string $name): Department
     {
         $department = new Department($name);
-        $this->departmentRepository->save($department);
+        $this->departmentRepository->add($department); // Cambiado a `add` en lugar de `save`.
 
         return $department;
     }
@@ -31,17 +31,12 @@ class DepartmentService
         }
 
         $department->setName($name);
-        $this->departmentRepository->save($department);
+        $this->departmentRepository->update($department); // Cambiado a `update`.
     }
 
     public function getDepartmentById(int $id): ?Department
     {
         return $this->departmentRepository->findById($id);
-    }
-
-    public function getDepartmentByName(string $name): ?Department
-    {
-        return $this->departmentRepository->findByName($name);
     }
 
     public function deleteDepartment(int $id): void

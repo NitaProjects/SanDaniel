@@ -49,7 +49,7 @@ class Router {
     
     
     
-    
+     
     
     private function executeAction($action, array $params = []) {
         if (is_callable($action)) {

@@ -15,21 +15,24 @@ class User
         string $firstName,
         string $lastName,
         string $email,
-        string $password,
+        ?string $password = null,
         string $userType
     ) {
         $this->setFirstName($firstName);
         $this->setLastName($lastName);
         $this->setEmail($email);
-        $this->setPassword($password);
+        if ($password !== null) {
+            $this->setPassword($password);
+        }
         $this->setUserType($userType);
     }
 
     // Getters and Setters
-    public function getId(): ?int {
-        return $this->id; 
+    public function getId(): ?int
+    {
+        return $this->id;
     }
-    
+
     public function setId(int $id): self
     {
         $this->id = $id;
@@ -83,13 +86,9 @@ class User
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): void
     {
-        if (strlen($password) < 6) {
-            throw new \InvalidArgumentException("Password must be at least 6 characters long");
-        }
         $this->password = $password;
-        return $this;
     }
 
     public function getUserType(): string
@@ -101,5 +100,16 @@ class User
     {
         $this->userType = $userType;
         return $this;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'first_name' => $this->firstName,
+            'last_name' => $this->lastName,
+            'email' => $this->email,
+            'user_type' => $this->userType
+        ];
     }
 }

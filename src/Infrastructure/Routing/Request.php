@@ -18,7 +18,7 @@ class Request {
     public function setMethod(string $method): self {
         $this->method = $method;
         return $this;
-    }
+    } 
 
     public function getPath(): string {
         return $this->path;

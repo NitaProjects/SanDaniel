@@ -14,11 +14,10 @@ class DegreeService
         $this->degreeRepository = $degreeRepository;
     }
 
-    public function createDegree(string $name, int $durationYears): Degree
+    public function addDegree(string $name, int $durationYears): Degree
     {
         $degree = new Degree($name, $durationYears);
-        $this->degreeRepository->save($degree);
-
+        $this->degreeRepository->add($degree); // Usamos add en el repositorio para insertar.
         return $degree;
     }
 
@@ -33,17 +32,12 @@ class DegreeService
         $degree->setName($name)
                ->setDurationYears($durationYears);
 
-        $this->degreeRepository->save($degree);
+        $this->degreeRepository->update($degree); // Usamos update en el repositorio para actualizar.
     }
 
     public function getDegreeById(int $id): ?Degree
     {
         return $this->degreeRepository->findById($id);
-    }
-
-    public function getDegreesByDurationYears(int $years): array
-    {
-        return $this->degreeRepository->findByDurationYears($years);
     }
 
     public function deleteDegree(int $id): void

@@ -15,25 +15,26 @@ class DegreeRepository implements IDegreeRepository
         $this->db = $db;
     }
 
-    public function save(Degree $degree): void
+    public function add(Degree $degree): void
     {
-        if ($degree->getId()) {
-            // Actualizar titulación existente
-            $stmt = $this->db->prepare("
-                UPDATE degrees SET 
-                    name = :name,
-                    duration_years = :duration_years
-                WHERE id = :id
-            ");
-            $stmt->bindValue(':id', $degree->getId());
-        } else {
-            // Crear nueva titulación
-            $stmt = $this->db->prepare("
-                INSERT INTO degrees (name, duration_years)
-                VALUES (:name, :duration_years)
-            ");
-        }
+        $stmt = $this->db->prepare("
+            INSERT INTO degrees (name, duration_years)
+            VALUES (:name, :duration_years)
+        ");
+        $stmt->bindValue(':name', $degree->getName());
+        $stmt->bindValue(':duration_years', $degree->getDurationYears());
+        $stmt->execute();
+    }
 
+    public function update(Degree $degree): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE degrees SET 
+                name = :name,
+                duration_years = :duration_years
+            WHERE id = :id
+        ");
+        $stmt->bindValue(':id', $degree->getId());
         $stmt->bindValue(':name', $degree->getName());
         $stmt->bindValue(':duration_years', $degree->getDurationYears());
         $stmt->execute();
@@ -47,16 +48,6 @@ class DegreeRepository implements IDegreeRepository
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
         return $data ? $this->mapToDegree($data) : null;
-    }
-
-    public function findByDurationYears(int $years): array
-    {
-        $stmt = $this->db->prepare("SELECT * FROM degrees WHERE duration_years = :duration_years");
-        $stmt->bindValue(':duration_years', $years);
-        $stmt->execute();
-
-        $degrees = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        return array_map([$this, 'mapToDegree'], $degrees);
     }
 
     public function delete(int $id): void
@@ -74,12 +65,9 @@ class DegreeRepository implements IDegreeRepository
     }
 
     private function mapToDegree(array $data): Degree
-{
-    // Pasar los dos argumentos requeridos
-    $degree = new Degree($data['name'], $data['duration_years']);
-    $degree->setId($data['id']); // Asignar el ID, si es necesario
-
-    return $degree;
-}
-
+    {
+        $degree = new Degree($data['name'], $data['duration_years']);
+        $degree->setId($data['id']);
+        return $degree;
+    }
 }

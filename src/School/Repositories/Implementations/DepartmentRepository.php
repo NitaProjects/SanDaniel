@@ -15,24 +15,31 @@ class DepartmentRepository implements IDepartmentRepository
         $this->db = $db;
     }
 
-    public function save(Department $department): void
+    public function add(Department $department): void
     {
-        if ($department->getId()) {
-            // Actualizar departamento existente
-            $stmt = $this->db->prepare("
-                UPDATE departments SET 
-                    name = :name
-                WHERE id = :id
-            ");
-            $stmt->bindValue(':id', $department->getId());
-        } else {
-            // Crear nuevo departamento
-            $stmt = $this->db->prepare("
-                INSERT INTO departments (name)
-                VALUES (:name)
-            ");
+        $stmt = $this->db->prepare("
+            INSERT INTO departments (name)
+            VALUES (:name)
+        ");
+        $stmt->bindValue(':name', $department->getName());
+        $stmt->execute();
+
+        // Obtener el ID generado y asignarlo al objeto
+        $department->setId((int)$this->db->lastInsertId());
+    }
+
+    public function update(Department $department): void
+    {
+        if (!$department->getId()) {
+            throw new \InvalidArgumentException("Cannot update a department without an ID.");
         }
 
+        $stmt = $this->db->prepare("
+            UPDATE departments SET 
+                name = :name
+            WHERE id = :id
+        ");
+        $stmt->bindValue(':id', $department->getId(), PDO::PARAM_INT);
         $stmt->bindValue(':name', $department->getName());
         $stmt->execute();
     }
@@ -40,17 +47,7 @@ class DepartmentRepository implements IDepartmentRepository
     public function findById(int $id): ?Department
     {
         $stmt = $this->db->prepare("SELECT * FROM departments WHERE id = :id");
-        $stmt->bindValue(':id', $id);
-        $stmt->execute();
-
-        $data = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $data ? $this->mapToDepartment($data) : null;
-    }
-
-    public function findByName(string $name): ?Department
-    {
-        $stmt = $this->db->prepare("SELECT * FROM departments WHERE name = :name");
-        $stmt->bindValue(':name', $name);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
         $data = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -60,7 +57,7 @@ class DepartmentRepository implements IDepartmentRepository
     public function delete(int $id): void
     {
         $stmt = $this->db->prepare("DELETE FROM departments WHERE id = :id");
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
     }
 
@@ -68,13 +65,14 @@ class DepartmentRepository implements IDepartmentRepository
     {
         $stmt = $this->db->query("SELECT * FROM departments");
         $departments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         return array_map([$this, 'mapToDepartment'], $departments);
     }
 
     private function mapToDepartment(array $data): Department
     {
         $department = new Department($data['name']);
-        $department->setId($data['id']); 
+        $department->setId((int)$data['id']);
 
         return $department;
     }

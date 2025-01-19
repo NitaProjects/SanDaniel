@@ -14,6 +14,9 @@ class SubjectController
         $this->subjectService = $subjectService;
     }
 
+    /**
+     * Crear una nueva asignatura.
+     */
     public function createSubject(Request $request): void
     {
         try {
@@ -36,6 +39,9 @@ class SubjectController
         }
     }
 
+    /**
+     * Obtener una asignatura por su ID.
+     */
     public function getSubjectById(Request $request): void
     {
         try {
@@ -55,20 +61,34 @@ class SubjectController
         }
     }
 
-    public function getSubjectsByCourseId(Request $request): void
+    /**
+     * Actualizar una asignatura.
+     */
+    public function updateSubject(Request $request): void
     {
         try {
-            $courseId = (int)$request->getQueryParams()['course_id'];
-            $subjects = $this->subjectService->findSubjectsByCourseId($courseId);
+            $data = $request->getBody();
+
+            if (!isset($data['id'], $data['name'], $data['course_id'])) {
+                throw new \InvalidArgumentException("ID, name, and course_id are required.");
+            }
+
+            $this->subjectService->updateSubject((int)$data['id'], $data['name'], (int)$data['course_id']);
 
             http_response_code(200);
-            echo json_encode($subjects);
+            echo json_encode(['message' => 'Subject updated successfully']);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(['error' => $e->getMessage()]);
         } catch (\Exception $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error']);
         }
     }
 
+    /**
+     * Eliminar una asignatura por su ID.
+     */
     public function deleteSubject(Request $request): void
     {
         try {
@@ -76,6 +96,22 @@ class SubjectController
             $this->subjectService->deleteSubject($id);
 
             http_response_code(204);
+        } catch (\Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Internal Server Error']);
+        }
+    }
+
+    /**
+     * Obtener todas las asignaturas.
+     */
+    public function getAllSubjects(): void
+    {
+        try {
+            $subjects = $this->subjectService->getAllSubjects();
+
+            http_response_code(200);
+            echo json_encode($subjects);
         } catch (\Exception $e) {
             http_response_code(500);
             echo json_encode(['error' => 'Internal Server Error']);

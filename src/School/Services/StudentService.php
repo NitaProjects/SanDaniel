@@ -14,14 +14,14 @@ class StudentService
         $this->studentRepository = $studentRepository;
     }
 
-    public function createStudent(
+    public function addStudent(
         int $userId,
         string $dni,
         int $enrollmentYear
     ): Student {
         // Crear un nuevo estudiante
         $student = new Student('', '', '', '', 'student', $dni, $enrollmentYear, $userId);
-        $this->studentRepository->save($student);
+        $this->studentRepository->add($student); // Cambiado a add
 
         return $student;
     }
@@ -29,21 +29,6 @@ class StudentService
     public function getStudentById(int $id): ?Student
     {
         return $this->studentRepository->findById($id);
-    }
-
-    public function getStudentByDni(string $dni): ?Student
-    {
-        return $this->studentRepository->findByDni($dni);
-    }
-
-    public function getStudentByUserId(int $userId): ?Student
-    {
-        return $this->studentRepository->findByUserId($userId);
-    }
-
-    public function getStudentsByEnrollmentYear(int $year): array
-    {
-        return $this->studentRepository->findByEnrollmentYear($year);
     }
 
     public function updateStudent(
@@ -60,7 +45,7 @@ class StudentService
         $student->setDni($dni)
                 ->setEnrollmentYear($enrollmentYear);
 
-        $this->studentRepository->save($student);
+        $this->studentRepository->update($student); // Cambiado a update
     }
 
     public function deleteStudent(int $id): void

@@ -14,10 +14,10 @@ class CourseService
         $this->courseRepository = $courseRepository;
     }
 
-    public function createCourse(string $name, int $degreeId): Course
+    public function addCourse(string $name, int $degreeId): Course
     {
         $course = new Course($name, $degreeId);
-        $this->courseRepository->save($course);
+        $this->courseRepository->add($course); // Usa add para agregar un nuevo curso.
 
         return $course;
     }
@@ -33,22 +33,12 @@ class CourseService
         $course->setName($name)
                ->setDegreeId($degreeId);
 
-        $this->courseRepository->save($course);
+        $this->courseRepository->update($course); // Usa update para modificar un curso existente.
     }
 
     public function getCourseById(int $id): ?Course
     {
         return $this->courseRepository->findById($id);
-    }
-
-    public function getCoursesByName(string $name): array
-    {
-        return $this->courseRepository->findByName($name);
-    }
-
-    public function getCoursesByDegreeId(int $degreeId): array
-    {
-        return $this->courseRepository->findByDegreeId($degreeId);
     }
 
     public function deleteCourse(int $id): void

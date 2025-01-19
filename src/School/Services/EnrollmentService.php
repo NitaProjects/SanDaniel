@@ -14,14 +14,20 @@ class EnrollmentService
         $this->enrollmentRepository = $enrollmentRepository;
     }
 
-    public function createEnrollment(int $studentId, int $subjectId, \DateTime $enrollmentDate): Enrollment
+    /**
+     * Crear una nueva matrícula.
+     */
+    public function addEnrollment(int $studentId, int $subjectId, \DateTime $enrollmentDate): Enrollment
     {
         $enrollment = new Enrollment($studentId, $subjectId, $enrollmentDate);
-        $this->enrollmentRepository->save($enrollment);
+        $this->enrollmentRepository->add($enrollment);
 
         return $enrollment;
     }
 
+    /**
+     * Actualizar una matrícula existente.
+     */
     public function updateEnrollment(int $id, int $studentId, int $subjectId, \DateTime $enrollmentDate): void
     {
         $enrollment = $this->getEnrollmentById($id);
@@ -34,34 +40,28 @@ class EnrollmentService
                    ->setSubjectId($subjectId)
                    ->setEnrollmentDate($enrollmentDate);
 
-        $this->enrollmentRepository->save($enrollment);
+        $this->enrollmentRepository->update($enrollment);
     }
 
+    /**
+     * Obtener una matrícula por su ID.
+     */
     public function getEnrollmentById(int $id): ?Enrollment
     {
         return $this->enrollmentRepository->findById($id);
     }
 
-    public function getEnrollmentsByStudentId(int $studentId): array
-    {
-        return $this->enrollmentRepository->findByStudentId($studentId);
-    }
-
-    public function getEnrollmentsBySubjectId(int $subjectId): array
-    {
-        return $this->enrollmentRepository->findBySubjectId($subjectId);
-    }
-
-    public function getEnrollmentsByDate(\DateTime $enrollmentDate): array
-    {
-        return $this->enrollmentRepository->findByEnrollmentDate($enrollmentDate);
-    }
-
+    /**
+     * Eliminar una matrícula.
+     */
     public function deleteEnrollment(int $id): void
     {
         $this->enrollmentRepository->delete($id);
     }
 
+    /**
+     * Obtener todas las matrículas.
+     */
     public function getAllEnrollments(): array
     {
         return $this->enrollmentRepository->getAll();
