@@ -13,7 +13,6 @@ interface ITeacherRepository
     public function getAll(): array; // Listar todos los profesores.
 
     // Gestión de departamentos
-    public function getDepartments(int $teacherId): array; // Obtener los departamentos de un profesor.
     public function assignDepartment(int $teacherId, int $departmentId): void; // Asignar un departamento.
     public function removeDepartment(int $teacherId, int $departmentId): void; // Eliminar un departamento específico.
 }

@@ -25,7 +25,7 @@ class UserRepository implements IUserRepository
         $stmt->bindValue(':first_name', $user->getFirstName());
         $stmt->bindValue(':last_name', $user->getLastName());
         $stmt->bindValue(':email', $user->getEmail());
-        $stmt->bindValue(':password', password_hash($user->getPassword(), PASSWORD_DEFAULT)); // Cifrar la contraseña
+        $stmt->bindValue(':password', $user->getPassword()); 
         $stmt->bindValue(':user_type', $user->getUserType());
         $stmt->execute();
 
@@ -34,22 +34,33 @@ class UserRepository implements IUserRepository
 
     public function update(User $user): void
     {
-        $stmt = $this->db->prepare("
+        $query = "
             UPDATE users SET 
                 first_name = :first_name,
                 last_name = :last_name,
                 email = :email,
-                password = :password,
                 user_type = :user_type
-            WHERE id = :id
-        ");
+        ";
+
+        // Agregar campo de contraseña solo si es necesario
+        if (!empty($user->getPassword())) {
+            $query .= ", password = :password";
+        }
+
+        $query .= " WHERE id = :id";
+
+        $stmt = $this->db->prepare($query);
 
         $stmt->bindValue(':id', $user->getId());
         $stmt->bindValue(':first_name', $user->getFirstName());
         $stmt->bindValue(':last_name', $user->getLastName());
         $stmt->bindValue(':email', $user->getEmail());
-        $stmt->bindValue(':password', password_hash($user->getPassword(), PASSWORD_DEFAULT)); // Cifrar la contraseña
         $stmt->bindValue(':user_type', $user->getUserType());
+
+        if (!empty($user->getPassword())) {
+            $stmt->bindValue(':password', $user->getPassword());
+        }
+
         $stmt->execute();
     }
 
@@ -79,17 +90,19 @@ class UserRepository implements IUserRepository
 
     private function mapToUser(array $data): User
     {
+        if (empty($data['id']) || empty($data['email']) || empty($data['user_type'])) {
+            throw new \RuntimeException("Datos insuficientes para mapear a un usuario");
+        }
 
         $user = new User(
-            $data['first_name'] ?? '', // Si no existe, asigna cadena vacía
+            $data['first_name'] ?? '',
             $data['last_name'] ?? '',
-            $data['email'] ?? '',
-            $data['password'] ?? '',
-            $data['user_type'] ?? ''
+            $data['email'],
+            $data['password'] ?? '', 
+            $data['user_type']
         );
 
-        $user->setId((int) ($data['id'] ?? 0)); // Si no existe, asigna 0
-
+        $user->setId((int)$data['id']);
         return $user;
     }
 }

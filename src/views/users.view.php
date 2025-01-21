@@ -52,9 +52,3 @@
     </tbody>
 </table>
 
-<script>
-    // Función para cerrar el formulario de edición
-    function closeEditUserForm() {
-        document.getElementById("edit-user-form").style.display = "none";
-    }
-</script>

@@ -21,7 +21,8 @@
         <ul>
             <li><a href="#about">Sobre Nosotros</a></li>
             <li><a href="#contact">Contacto</a></li>
-            <li><a href="/management">Gestión</a></li> 
+            <li><a href="/management">Gestión</a></li>
+            <li><a href="/assign-teacher">Asignar Profesor</a></li> 
         </ul>
     </nav>
 

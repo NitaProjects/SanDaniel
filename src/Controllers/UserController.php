@@ -26,20 +26,11 @@ class UserController
                 $data['user_type']
             );
 
-            http_response_code(201);
-            echo json_encode([
-                'id' => $user->getId(),
-                'first_name' => $user->getFirstName(),
-                'last_name' => $user->getLastName(),
-                'email' => $user->getEmail(),
-                'user_type' => $user->getUserType(),
-            ]);
+            $this->respond(201, $this->userService->serializeUser($user));
         } catch (\InvalidArgumentException $e) {
-            http_response_code(400);
-            echo json_encode(['error' => $e->getMessage()]);
+            $this->respond(400, ['error' => $e->getMessage()]);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Internal Server Error']);
+            $this->respond(500, ['error' => 'Error interno del servidor']);
         }
     }
 
@@ -49,21 +40,12 @@ class UserController
             $user = $this->userService->getUserById($id);
 
             if ($user) {
-                http_response_code(200);
-                echo json_encode([
-                    'id' => $user->getId(),
-                    'first_name' => $user->getFirstName(),
-                    'last_name' => $user->getLastName(),
-                    'email' => $user->getEmail(),
-                    'user_type' => $user->getUserType(),
-                ]);
+                $this->respond(200, $this->userService->serializeUser($user));
             } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'User not found']);
+                $this->respond(404, ['error' => 'Usuario no encontrado']);
             }
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Internal Server Error']);
+            $this->respond(500, ['error' => 'Error interno del servidor']);
         }
     }
 
@@ -71,13 +53,6 @@ class UserController
     {
         try {
             $data = $request->getBody();
-
-            if (!isset($data['first_name'], $data['last_name'], $data['email'], $data['password'], $data['user_type'])) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Missing required fields']);
-                return;
-            }
-
             $this->userService->updateUser(
                 $id,
                 $data['first_name'],
@@ -87,14 +62,11 @@ class UserController
                 $data['user_type']
             );
 
-            http_response_code(200);
-            echo json_encode(['message' => 'User updated successfully']);
+            $this->respond(200, ['message' => 'Usuario actualizado correctamente']);
         } catch (\InvalidArgumentException $e) {
-            http_response_code(400);
-            echo json_encode(['error' => $e->getMessage()]);
+            $this->respond(400, ['error' => $e->getMessage()]);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Internal Server Error']);
+            $this->respond(500, ['error' => 'Error interno del servidor']);
         }
     }
 
@@ -102,27 +74,29 @@ class UserController
     {
         try {
             $this->userService->deleteUser($id);
-
-            http_response_code(204);
+            $this->respond(204);
         } catch (\Exception $e) {
-            http_response_code(500);
-            echo json_encode(['error' => 'Internal Server Error']);
+            $this->respond(500, ['error' => 'Error interno del servidor']);
         }
     }
 
     public function getAllUsers(): void
-{
-    try {
-        $users = $this->userService->getAllUsers();
+    {
+        try {
+            $users = $this->userService->getAllUsers();
+            $serializedUsers = array_map([$this->userService, 'serializeUser'], $users);
 
-        // Convertir los objetos `User` a arrays
-        $userArray = array_map(fn($user) => $user->toArray(), $users);
-
-        echo json_encode($userArray);
-    } catch (\Exception $e) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Internal Server Error']);
+            $this->respond(200, $serializedUsers);
+        } catch (\Exception $e) {
+            $this->respond(500, ['error' => 'Error interno del servidor']);
+        }
     }
-}
 
+    private function respond(int $status, array $data = []): void
+    {
+        http_response_code($status);
+        if (!empty($data)) {
+            echo json_encode($data);
+        }
+    }
 }

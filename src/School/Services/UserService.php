@@ -17,10 +17,10 @@ class UserService
     public function addUser(string $firstName, string $lastName, string $email, string $password, string $userType): User
     {
         if (empty($firstName) || empty($lastName)) {
-            throw new \InvalidArgumentException("First name and last name are required.");
+            throw new \InvalidArgumentException("El nombre y el apellido son obligatorios.");
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException("Invalid email format.");
+            throw new \InvalidArgumentException("El formato del correo electrónico no es válido.");
         }
 
         $user = new User($firstName, $lastName, $email, $password, $userType);
@@ -34,7 +34,7 @@ class UserService
         $user = $this->userRepository->findById($id);
 
         if (!$user) {
-            throw new \Exception("User with ID $id not found.");
+            throw new \Exception("Usuario con ID $id no encontrado.");
         }
 
         $user->setFirstName($firstName)
@@ -59,5 +59,16 @@ class UserService
     public function getAllUsers(): array
     {
         return $this->userRepository->getAll();
+    }
+
+    public function serializeUser(User $user): array
+    {
+        return [
+            'id' => $user->getId(),
+            'first_name' => $user->getFirstName(),
+            'last_name' => $user->getLastName(),
+            'email' => $user->getEmail(),
+            'user_type' => $user->getUserType(),
+        ];
     }
 }

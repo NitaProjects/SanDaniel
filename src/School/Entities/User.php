@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\School\Entities;
 
 class User
@@ -15,19 +17,16 @@ class User
         string $firstName,
         string $lastName,
         string $email,
-        ?string $password = null,
+        string $password,
         string $userType
     ) {
         $this->setFirstName($firstName);
         $this->setLastName($lastName);
         $this->setEmail($email);
-        if ($password !== null) {
-            $this->setPassword($password);
-        }
-        $this->setUserType($userType);
+        $this->setPassword($password); // Hash automático
+        $this->userType = $userType;  // Sin validación, se asume correcta
     }
 
-    // Getters and Setters
     public function getId(): ?int
     {
         return $this->id;
@@ -47,7 +46,7 @@ class User
     public function setFirstName(string $firstName): self
     {
         if (empty($firstName)) {
-            throw new \InvalidArgumentException("First name cannot be empty");
+            throw new \InvalidArgumentException("El nombre no puede estar vacío.");
         }
         $this->firstName = $firstName;
         return $this;
@@ -61,7 +60,7 @@ class User
     public function setLastName(string $lastName): self
     {
         if (empty($lastName)) {
-            throw new \InvalidArgumentException("Last name cannot be empty");
+            throw new \InvalidArgumentException("El apellido no puede estar vacío.");
         }
         $this->lastName = $lastName;
         return $this;
@@ -75,7 +74,7 @@ class User
     public function setEmail(string $email): self
     {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            throw new \InvalidArgumentException("Invalid email format");
+            throw new \InvalidArgumentException("El formato del correo electrónico no es válido.");
         }
         $this->email = $email;
         return $this;
@@ -86,9 +85,10 @@ class User
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(string $password): self
     {
-        $this->password = $password;
+        $this->password = password_hash($password, PASSWORD_DEFAULT);
+        return $this;
     }
 
     public function getUserType(): string
@@ -100,16 +100,5 @@ class User
     {
         $this->userType = $userType;
         return $this;
-    }
-
-    public function toArray(): array
-    {
-        return [
-            'id' => $this->id,
-            'first_name' => $this->firstName,
-            'last_name' => $this->lastName,
-            'email' => $this->email,
-            'user_type' => $this->userType
-        ];
     }
 }

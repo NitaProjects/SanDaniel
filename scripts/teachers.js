@@ -1,18 +1,10 @@
 // Inicializar la página
 function initTeachersPage() {
-    const assignDepartmentForm = document.getElementById("assign-department-form");
-    if (assignDepartmentForm) {
-        assignDepartmentForm.addEventListener("submit", (event) => {
+    const teacherForm = document.getElementById("teacher-form");
+    if (teacherForm) {
+        teacherForm.addEventListener("submit", (event) => {
             event.preventDefault();
-            assignDepartmentToTeacher();
-        });
-    }
-
-    const removeDepartmentForm = document.getElementById("remove-department-form");
-    if (removeDepartmentForm) {
-        removeDepartmentForm.addEventListener("submit", (event) => {
-            event.preventDefault();
-            removeSpecificDepartment();
+            addTeacher();
         });
     }
 
@@ -23,13 +15,13 @@ function initTeachersPage() {
 async function loadTeachers() {
     try {
         const response = await axios.get("/teachers");
-        const teachers = response.data; 
+        const teachers = response.data;
 
         const tableBody = document.getElementById("teacher-table-body");
         tableBody.innerHTML = "";
 
-        if (!Array.isArray(teachers)) {
-            console.error("El contenido de 'teachers' no es un array:", teachers);
+        if (!Array.isArray(teachers) || teachers.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='4'>No hay profesores registrados</td></tr>";
             return;
         }
 
@@ -39,12 +31,9 @@ async function loadTeachers() {
                     <td>${teacher.id}</td>
                     <td>${teacher.first_name} ${teacher.last_name}</td>
                     <td>${teacher.email}</td>
-                    <td>${Array.isArray(teacher.departments)
-                        ? teacher.departments.map(dep => dep.name).join(", ")
-                        : "Sin departamentos"}</td>
                     <td>
-                        <button onclick="openAssignDepartmentModal(${teacher.id})">Asignar Departamento</button>
-                        <button onclick="openRemoveDepartmentModal(${teacher.id})">Eliminar Departamento</button>
+                        <button onclick="editTeacher(${teacher.id})">Editar</button>
+                        <button onclick="deleteTeacher(${teacher.id})">Eliminar</button>
                     </td>
                 </tr>
             `;
@@ -55,102 +44,72 @@ async function loadTeachers() {
     }
 }
 
-
-// Asignar un departamento a un profesor
-async function assignDepartmentToTeacher() {
+// Guardar (crear o actualizar) un profesor
+async function addTeacher() {
     const teacherId = document.getElementById("teacher-id").value;
-    const departmentId = document.getElementById("department-select").value;
+    const firstName = document.getElementById("teacher-name").value;
+    const email = document.getElementById("teacher-email").value;
 
     try {
-        await axios.post(`/teachers/${teacherId}/departments`, { department_id: departmentId });
-        closeAssignDepartmentModal();
+        if (teacherId) {
+            await axios.put(`/teachers/${teacherId}`, { first_name: firstName, email });
+        } else {
+            await axios.post("/teachers", { first_name: firstName, email });
+        }
+
+        closeTeacherModal();
         loadTeachers();
     } catch (error) {
-        console.error("Error al asignar departamento:", error);
+        console.error("Error al guardar el profesor:", error.response?.data || error);
+        alert(error.response?.data?.error || "Error al guardar el profesor. Inténtalo de nuevo.");
     }
 }
 
-// Eliminar un departamento específico de un profesor
-async function removeSpecificDepartment() {
-    const teacherId = document.getElementById("remove-teacher-id").value;
-    const departmentId = document.getElementById("remove-department-select").value;
-
+// Editar un profesor
+async function editTeacher(teacherId) {
     try {
-        await axios.delete(`/teachers/${teacherId}/departments/${departmentId}`);
-        closeRemoveDepartmentModal();
+        const response = await axios.get(`/teachers/${teacherId}`);
+        const teacher = response.data;
+
+        document.getElementById("teacher-id").value = teacher.id;
+        document.getElementById("teacher-name").value = teacher.first_name;
+        document.getElementById("teacher-email").value = teacher.email;
+
+        openTeacherModal("Editar Profesor");
+    } catch (error) {
+        console.error("Error al cargar los datos del profesor:", error);
+    }
+}
+
+// Eliminar un profesor
+async function deleteTeacher(teacherId) {
+    try {
+        await axios.delete(`/teachers/${teacherId}`);
         loadTeachers();
     } catch (error) {
-        console.error("Error al eliminar departamento:", error);
+        console.error("Error al eliminar el profesor:", error);
+        alert("Error al eliminar el profesor.");
     }
 }
 
-// Abrir modal para asignar departamento
-function openAssignDepartmentModal(teacherId) {
-    document.getElementById("teacher-id").value = teacherId;
-    loadAvailableDepartments(teacherId);
-    document.getElementById("assign-department-modal").style.display = "block";
+// Abrir modal para agregar o editar un profesor
+function openTeacherModal(title = "Agregar Profesor") {
+    document.getElementById("modal-title").textContent = title;
+
+    document.getElementById("teacher-id").value = "";
+    document.getElementById("teacher-name").value = "";
+    document.getElementById("teacher-email").value = "";
+
+    document.getElementById("teacher-modal").style.display = "block";
 }
 
-// Abrir modal para eliminar departamento
-function openRemoveDepartmentModal(teacherId) {
-    document.getElementById("remove-teacher-id").value = teacherId;
-    loadAssignedDepartments(teacherId);
-    document.getElementById("remove-department-modal").style.display = "block";
+// Cerrar modal de profesor
+function closeTeacherModal() {
+    document.getElementById("teacher-id").value = "";
+    document.getElementById("teacher-name").value = "";
+    document.getElementById("teacher-email").value = "";
+    document.getElementById("teacher-modal").style.display = "none";
 }
 
-async function loadAvailableDepartments(teacherId) {
-    try {
-        const response = await axios.get(`/departments`);
-        const assignedResponse = await axios.get(`/teachers/${teacherId}/departments`);
-
-        // Si `assignedResponse.data` no es un array, ajustarlo
-        const assignedDepartmentIds = Array.isArray(assignedResponse.data)
-            ? assignedResponse.data.map(dep => dep.id)
-            : []; // Si no es un array, usamos un array vacío
-
-        const departmentSelect = document.getElementById("department-select");
-        if (!departmentSelect) return;
-
-        departmentSelect.innerHTML = "";
-
-        response.data
-            .filter(dep => !assignedDepartmentIds.includes(dep.id)) 
-            .forEach((department) => {
-                const option = document.createElement("option");
-                option.value = department.id;
-                option.textContent = department.name;
-                departmentSelect.appendChild(option);
-            });
-    } catch (error) {
-        console.error("Error al cargar los departamentos disponibles:", error);
-    }
-}
-
-
-// Cargar departamentos asignados al profesor
-async function loadAssignedDepartments(teacherId) {
-    try {
-        const response = await axios.get(`/teachers/${teacherId}/departments`);
-        const departmentSelect = document.getElementById("remove-department-select");
-        departmentSelect.innerHTML = "";
-
-        response.data.forEach((department) => {
-            const option = document.createElement("option");
-            option.value = department.id;
-            option.textContent = department.name;
-            departmentSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error("Error al cargar departamentos asignados:", error);
-    }
-}
-
-// Cerrar modal de asignar departamento
-function closeAssignDepartmentModal() {
-    document.getElementById("assign-department-modal").style.display = "none";
-}
-
-// Cerrar modal de eliminar departamento
-function closeRemoveDepartmentModal() {
-    document.getElementById("remove-department-modal").style.display = "none";
-}
+// Inicializar la página al cargar
+document.addEventListener("DOMContentLoaded", initTeachersPage);
